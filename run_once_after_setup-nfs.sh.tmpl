@@ -1,0 +1,43 @@
+#!/bin/bash
+# chezmoi: template
+
+# Création des points de montage et écriture des unités Systemd Root
+sudo mkdir -p /nfs/media /nfs/work
+sudo chown -R {{ .uid }}:{{ .gid }} /nfs
+
+# Unité de montage pour Media
+sudo tee /etc/systemd/system/nfs-media.mount <<EOF
+[Unit]
+Description=Montage NFS Media
+After=network-online.target
+Wants=network-online.target
+
+[Mount]
+What={{ .nfs_server_ip }}:/media
+Where=/nfs/media
+Type=nfs
+Options=rw,soft,intr,noatime,timeo=14,x-systemd.automount
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Unité de montage pour Work
+sudo tee /etc/systemd/system/nfs-work.mount <<EOF
+[Unit]
+Description=Montage NFS Work
+After=network-online.target
+Wants=network-online.target
+
+[Mount]
+What={{ .nfs_server_ip }}:/work
+Where=/nfs/work
+Type=nfs
+Options=rw,soft,intr,noatime,timeo=14,x-systemd.automount
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Rechargement de systemd
+sudo systemctl daemon-reload

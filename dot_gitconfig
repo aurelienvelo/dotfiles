@@ -1,0 +1,7 @@
+[user]
+    name = aurelienvelo
+    email = aurelien.velo@gmail.com
+[core]
+    editor = nvim
+[init]
+    defaultBranch = main

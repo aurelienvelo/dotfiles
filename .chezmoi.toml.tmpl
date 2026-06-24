@@ -1,0 +1,23 @@
+[data]
+    username = "kernelghost"
+    uid = 1000
+    gid = 100
+    nfs_server_ip = "10.10.20.20" # IP de votre serveur NFS (À MODIFIER)
+
+    # Détection automatique du profil matériel selon le hostname
+    {{- if eq .chezmoi.hostname "vm-dev" }}
+    device_type = "vm"
+    has_nvidia = false
+    has_battery = false
+    screen_count = 1
+    {{- else if eq .chezmoi.hostname "laptop" }}
+    device_type = "laptop"
+    has_nvidia = false
+    has_battery = true
+    screen_count = 1
+    {{- else if eq .chezmoi.hostname "desktop" }}
+    device_type = "desktop"
+    has_nvidia = true
+    has_battery = false
+    screen_count = 3
+    {{- end }}

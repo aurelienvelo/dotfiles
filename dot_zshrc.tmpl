@@ -1,0 +1,23 @@
+# Configuration NVM (Node Version Manager) installé via Git/Manuel
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# Configuration de base de l'historique
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt appendhistory
+setopt sharehistory
+
+# Auto-complétion moderne
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select
+
+# Prompt minimaliste et propre
+PROMPT='%F{green}%n@%m%f:%F{blue}%~%f$ '
+
+# Alias utiles
+alias ll='ls -l'
+alias la='ls -la'
+alias update='sudo pacman -Syu && yay -Sua'
