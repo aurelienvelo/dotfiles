@@ -1,3 +1,6 @@
+# Common config
+export EDITOR=vim
+
 # Configuration NVM (Node Version Manager) installé via Git/Manuel
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -20,4 +23,4 @@ PROMPT='%F{green}%n@%m%f:%F{blue}%~%f$ '
 # Alias utiles
 alias ll='ls -l'
 alias la='ls -la'
-alias update='sudo pacman -Syu && yay -Sua'
+alias update='paru -Syu'

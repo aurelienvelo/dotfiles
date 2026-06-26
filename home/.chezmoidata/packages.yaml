@@ -1,0 +1,15 @@
+packages:
+  arch:
+    pacman:
+    - 'base-devel'
+    - 'tree'
+    - 'exa'
+    - 'ripgrep'
+    - 'git'
+    - 'zsh'
+    - 'nvchad-git'
+    aur:
+    - 'brave-bin'
+  darwin:
+    brews:
+    - 'git'
