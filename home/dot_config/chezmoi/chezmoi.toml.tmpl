@@ -1,6 +1,9 @@
 [diff]
     exclude = ["scripts"]
 
+[hooks.read-source-state.pre]
+    command = ".local/share/chezmoi/.install-password-manager.sh"
+
 [data]
     username = "kernelghost"
     uid = 1000

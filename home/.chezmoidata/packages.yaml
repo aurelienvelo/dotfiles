@@ -2,6 +2,7 @@ packages:
   arch:
     pacman:
     - 'base-devel'
+    - 'nfs-utils'
     - 'tree'
     - 'exa'
     - 'ripgrep'
