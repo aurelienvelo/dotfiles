@@ -3,12 +3,15 @@ packages:
     pacman:
     - 'base-devel'
     - 'nfs-utils'
+    - 'less'
     - 'tree'
     - 'exa'
     - 'ripgrep'
     - 'git'
     - 'zsh'
     - 'nvchad-git'
+    - 'remmina'
+    - 'kmail'
     aur:
     - 'brave-bin'
   darwin:
