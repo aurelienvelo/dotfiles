@@ -2,7 +2,7 @@
     exclude = ["scripts"]
 
 [hooks.read-source-state.pre]
-    command = ".local/share/chezmoi/.install-password-manager.sh"
+    command = ".local/share/chezmoi/home/.chezmoiscripts/.install-password-manager.sh"
 
 [data]
     username = "kernelghost"
@@ -11,7 +11,7 @@
     nfs_server_ip = "10.10.20.20" # IP de votre serveur NFS (À MODIFIER)
 
     # Détection automatique du profil matériel selon le hostname
-    device_type = "vm"
+    device_type = "{{ .chezmoi.hostname }}"
     has_nvidia = false
     has_battery = false
     screen_count = 1

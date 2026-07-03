@@ -1,0 +1,3 @@
+ssh:
+  legacyServers:
+    - kernelghost@proxmox.home.lan

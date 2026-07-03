@@ -11,7 +11,7 @@ packages=(
 )
 
 if [ ${#packages[@]} -gt 0 ]; then
-    paru -S --noconfirm "${packages[@]}"
+    paru -S --noconfirm --needed "${packages[@]}"
 fi
 {{ end -}}
 

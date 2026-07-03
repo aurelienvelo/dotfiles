@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+# --- déclenche run_onchange_ si le registre change ---
+{{ range (glob (printf "%s/ssh_pubkeys_registry/*.pub" .chezmoi.sourceDir)) }}
+# {{ . }}: {{ include . | sha256sum }}
+{{ end }}
+# --- fin ---
+
+REGISTRY="{{ .chezmoi.sourceDir }}/ssh_pubkeys_registry"
+
+for server in {{ .ssh.legacyServers | join " " }}; do
+    echo "Vérification des clés autorisées sur $server..."
+    for pubkey_file in "$REGISTRY"/*.pub; do
+        [ -f "$pubkey_file" ] || continue
+        pubkey_content="$(cat "$pubkey_file")"
+        ssh "$server" "grep -qxF '$pubkey_content' ~/.ssh/authorized_keys 2>/dev/null || echo '$pubkey_content' >> ~/.ssh/authorized_keys"
+    done
+done

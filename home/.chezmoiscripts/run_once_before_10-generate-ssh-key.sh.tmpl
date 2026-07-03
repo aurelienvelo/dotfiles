@@ -1,0 +1,28 @@
+#!/bin/sh
+set -eu
+
+KEY_PATH="$HOME/.ssh/id_ed25519"
+SOURCE_DIR="{{ .chezmoi.sourceDir }}"
+REGISTRY="$SOURCE_DIR/ssh_pubkeys_registry"
+HOSTNAME="{{ .chezmoi.hostname }}"
+
+mkdir -p "$HOME/.ssh" "$REGISTRY"
+chmod 700 "$HOME/.ssh"
+
+if [ ! -f "$KEY_PATH" ]; then
+    echo "Génération d'une nouvelle clé SSH pour $HOSTNAME"
+    ssh-keygen -t ed25519 -C "{{ .chezmoi.username }}@$HOSTNAME" -f "$KEY_PATH" -N ""
+    chmod 600 "$KEY_PATH"
+    chmod 644 "$KEY_PATH.pub"
+fi
+
+# Publie la pubkey dans le registre versionné
+cp "$KEY_PATH.pub" "$REGISTRY/$HOSTNAME.pub"
+
+cd "$SOURCE_DIR"
+if ! git diff --quiet --exit-code -- "ssh_pubkeys_registry/$HOSTNAME.pub" 2>/dev/null && \
+   [ -n "$(git status --porcelain "ssh_pubkeys_registry/$HOSTNAME.pub")" ]; then
+    git add "ssh_pubkeys_registry/$HOSTNAME.pub"
+    git commit -m "ssh: add pubkey for $HOSTNAME"
+    git push || echo "Push manuel nécessaire (pas de réseau/remote configuré ?)"
+fi

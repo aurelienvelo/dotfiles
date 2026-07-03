@@ -1,0 +1,8 @@
+Host github.com
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+
+Host proxmox
+    HostName 10.10.10.20
+    User kernelghost
+    IdentityFile ~/.ssh/id_ed25519

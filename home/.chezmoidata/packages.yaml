@@ -2,6 +2,8 @@ packages:
   arch:
     pacman:
     - 'base-devel'
+    - 'npm'
+    - 'unzip'
     - 'nfs-utils'
     - 'less'
     - 'tree'
@@ -10,6 +12,7 @@ packages:
     - 'git'
     - 'zsh'
     - 'nvchad-git'
+    - 'dolphin'
     - 'remmina'
     - 'kmail'
     aur:
