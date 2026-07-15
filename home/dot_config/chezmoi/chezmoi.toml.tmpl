@@ -12,6 +12,6 @@
 
     # Détection automatique du profil matériel selon le hostname
     device_type = "{{ .chezmoi.hostname }}"
-    has_nvidia = false
-    has_battery = false
-    screen_count = 1
+    has_nvidia = {{ .chezmoi.has_nvidia }}
+    has_battery = {{ .chezmoi.has_battery }}
+    screen_count = {{ .chezmoi.screen_count }}
