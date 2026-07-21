@@ -1,0 +1,25 @@
+#!/bin/sh
+set -euo pipefail
+
+TPM="$HOME/.config/tmux/plugins/tpm"
+
+# Installer TPM si nécessaire
+if [ ! -d "$TPM" ]; then
+    git clone https://github.com/tmux-plugins/tpm "$TPM"
+fi
+
+# Installer les plugins une seule fois
+STAMP="$HOME/.local/state/tmux/plugins-installed"
+
+if [ ! -f "$STAMP" ]; then
+    tmux start-server
+
+    tmux new-session -d -s bootstrap
+
+    "$TPM/bin/install_plugins"
+
+    tmux kill-server
+
+    mkdir -p "$(dirname "$STAMP")"
+    touch "$STAMP"
+fi

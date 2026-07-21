@@ -2,6 +2,8 @@ packages:
   arch:
     pacman:
     - 'base-devel'
+    - 'ghostty'
+    - 'tmux'
     - 'npm'
     - 'unzip'
     - 'nfs-utils'
@@ -27,6 +29,7 @@ packages:
     - 'helm'
     - 'k9s'
     - 'discord'
+    - 'mpv'
     aur:
     - 'brave-bin'
   darwin:
