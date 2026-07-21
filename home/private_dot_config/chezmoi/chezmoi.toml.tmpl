@@ -1,3 +1,9 @@
+[diff]
+    exclude = ["scripts"]
+
+[hooks.read-source-state.pre]
+    command = ".local/share/chezmoi/home/.chezmoiscripts/.install-password-manager.sh"
+
 [data]
     username = "kernelghost"
     uid = 1000
@@ -20,4 +26,9 @@
     has_nvidia = true
     has_battery = false
     screen_count = 3
+    {{- else }}
+    device_type = "unknown"
+    has_nvidia = false
+    has_battery = false
+    screen_count = 1
     {{- end }}
