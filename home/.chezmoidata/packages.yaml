@@ -11,6 +11,7 @@ packages:
     - 'tree'
     - 'exa'
     - 'btop'
+    - 'fastfetch'
     - 'ripgrep'
     - 'git'
     - 'lazygit'
