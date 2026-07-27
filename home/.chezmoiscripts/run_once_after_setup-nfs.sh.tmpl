@@ -2,8 +2,10 @@
 # chezmoi: template
 
 # Création des points de montage et écriture des unités Systemd Root
-sudo mkdir -p /nfs/media /nfs/work
-sudo chown -R {{ .uid }}:{{ .gid }} /nfs
+if [ ! -d /nfs/media ] || [ ! -d /nfs/work ]; then
+  sudo mkdir -p /nfs/media /nfs/work
+  sudo chown -R {{ .uid }}:{{ .gid }} /nfs
+fi
 
 # Unité de montage pour Media
 sudo tee /etc/systemd/system/nfs-media.mount <<EOF
