@@ -17,6 +17,7 @@ packages:
     - 'lazygit'
     - 'zsh'
     - 'fzf'
+    - 'mise'
     - 'direnv'
     - 'nvchad-git'
     - 'zoxide'
