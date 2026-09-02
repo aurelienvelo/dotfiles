@@ -18,3 +18,13 @@ if command -v tmux >/dev/null &&
     ~/.local/bin/tmux-bootstrap
     exec tmux
 fi
+
+# mise
+if command -v mise >/dev/null; then
+    eval "$(mise activate zsh)"
+fi
+
+# direnv
+if command -v direnv >/dev/null; then
+    eval "$(direnv hook zsh)"
+fi

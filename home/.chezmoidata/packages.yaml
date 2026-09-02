@@ -19,6 +19,7 @@ packages:
     - 'fzf'
     - 'mise'
     - 'direnv'
+    - 'uv'
     - 'nvchad-git'
     - 'zoxide'
     - 'bat'
@@ -30,6 +31,8 @@ packages:
     - 'kubectl'
     - 'helm'
     - 'k9s'
+    - 'sops'
+    - 'age'
     - 'discord'
     - 'mpv'
     aur:

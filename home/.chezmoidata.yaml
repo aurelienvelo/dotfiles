@@ -1,3 +1,9 @@
 ssh:
   legacyServers:
     - kernelghost@proxmox.home.lan
+    - root@nfs.home.lan
+    - root@plex-server.home.lan
+    - root@seedbox.home.lan
+    - root@reverse-proxy.home.lan
+    - root@netbird.home.lan
+    - root@frigate.home.lan
