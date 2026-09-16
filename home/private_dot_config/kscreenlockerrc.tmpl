@@ -1,4 +1,4 @@
-{{ if .gui -}}
+{{ if (dig "gui" false .) -}}
 [Daemon]
 LockOnResume=true
 {{- end }}
