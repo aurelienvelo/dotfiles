@@ -9,13 +9,13 @@ set -euo pipefail
 
 REGISTRY="{{ .chezmoi.sourceDir }}/ssh_pubkeys_registry"
 
-{{ if .ssh.legacyServers }}
-for server in {{ .ssh.legacyServers | join " " }}; do
-    echo "Vérification des clés autorisées sur $server..."
-    for pubkey_file in "$REGISTRY"/*.pub; do
-        [ -f "$pubkey_file" ] || continue
-        pubkey_content="$(cat "$pubkey_file")"
-        ssh "$server" "grep -qxF '$pubkey_content' ~/.ssh/authorized_keys 2>/dev/null || echo '$pubkey_content' >> ~/.ssh/authorized_keys"
-    done
+{{ range .ssh.hosts }}
+server="{{ .user }}@{{ .hostname }}"
+echo "Vérification des clés autorisées sur $server..."
+for pubkey_file in "$REGISTRY"/*.pub; do
+    [ -f "$pubkey_file" ] || continue
+    pubkey_content="$(cat "$pubkey_file")"
+    ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new \
+        "$server" "grep -qxF '$pubkey_content' ~/.ssh/authorized_keys 2>/dev/null || echo '$pubkey_content' >> ~/.ssh/authorized_keys" || true
 done
 {{ end }}

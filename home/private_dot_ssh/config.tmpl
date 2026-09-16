@@ -1,0 +1,10 @@
+Host github.com
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+
+{{ range .ssh.hosts }}
+Host {{ .alias }}
+    HostName {{ .hostname }}
+    User {{ .user }}
+    IdentityFile ~/.ssh/id_ed25519
+{{ end }}

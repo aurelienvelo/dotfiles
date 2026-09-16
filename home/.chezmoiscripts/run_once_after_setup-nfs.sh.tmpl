@@ -1,5 +1,8 @@
 #!/bin/sh
 # chezmoi: template
+{{ if eq .chezmoi.os "linux" -}}
+{{ if (dig "nfs_mount" false .) -}}
+set -euo pipefail
 
 # Création des points de montage et écriture des unités Systemd Root
 if [ ! -d /nfs/media ] || [ ! -d /nfs/work ]; then
@@ -8,7 +11,7 @@ if [ ! -d /nfs/media ] || [ ! -d /nfs/work ]; then
 fi
 
 # Unité de montage pour Media
-sudo tee /etc/systemd/system/nfs-media.mount <<EOF
+sudo tee /etc/systemd/system/nfs-media.mount <<'EOF'
 [Unit]
 Description=Montage NFS Media
 After=network-online.target
@@ -25,7 +28,7 @@ WantedBy=multi-user.target
 EOF
 
 # Unité de montage pour Work
-sudo tee /etc/systemd/system/nfs-work.mount <<EOF
+sudo tee /etc/systemd/system/nfs-work.mount <<'EOF'
 [Unit]
 Description=Montage NFS Work
 After=network-online.target
@@ -45,3 +48,5 @@ EOF
 sudo systemctl daemon-reload
 sudo systemctl enable --now nfs-media.mount
 sudo systemctl enable --now nfs-work.mount
+{{ end -}}
+{{ end -}}

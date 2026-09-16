@@ -1,9 +1,25 @@
+nfs_server_ip: "10.10.20.20"
+
 ssh:
-  legacyServers:
-    - kernelghost@proxmox.home.lan
-    - root@nfs.home.lan
-    - root@plex-server.home.lan
-    - root@seedbox.home.lan
-    - root@reverse-proxy.home.lan
-    - root@netbird.home.lan
-    - root@frigate.home.lan
+  hosts:
+    - alias: proxmox
+      hostname: 10.10.10.20
+      user: kernelghost
+    - alias: nfs
+      hostname: nfs.home.lan
+      user: root
+    - alias: plex
+      hostname: plex-server.home.lan
+      user: root
+    - alias: seedbox
+      hostname: seedbox.home.lan
+      user: root
+    - alias: proxy
+      hostname: reverse-proxy.home.lan
+      user: root
+    - alias: netbird
+      hostname: netbird.home.lan
+      user: root
+    - alias: frigate
+      hostname: frigate.home.lan
+      user: root

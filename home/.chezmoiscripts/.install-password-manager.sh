@@ -18,7 +18,7 @@ Darwin)
     ;;
 Linux)
     if command -v pacman >/dev/null 2>&1; then
-        sudo pacman -S --needed bitwarden-cli jq
+        sudo pacman -S --needed --noconfirm bitwarden-cli jq
 
     elif command -v paru >/dev/null 2>&1; then
         paru -S --needed bitwarden-cli jq

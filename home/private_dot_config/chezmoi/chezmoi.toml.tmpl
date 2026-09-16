@@ -2,46 +2,45 @@
     exclude = ["scripts"]
 
 [hooks.read-source-state.pre]
-    command = ".local/share/chezmoi/home/.chezmoiscripts/.install-password-manager.sh"
+    command = "{{ .chezmoi.sourceDir }}/.chezmoiscripts/.install-password-manager.sh"
 
 [data]
     # username, uid et gid sont auto-détectés par les built-ins .chezmoi.*
-    nfs_server_ip = "10.10.20.20" # IP de votre serveur NFS (À MODIFIER)
 
     # Détection automatique du profil matériel selon le hostname
     {{- if eq .chezmoi.hostname "vm-dev" }}
     device_type = "vm"
     has_nvidia = false
     has_battery = false
-    screen_count = 1
     gui = true
     workstation = false
+    nfs_mount = true
     {{- else if eq .chezmoi.hostname "laptop" }}
     device_type = "laptop"
     has_nvidia = false
     has_battery = true
-    screen_count = 1
     gui = true
     workstation = true
+    nfs_mount = true
     {{- else if eq .chezmoi.hostname "desktop" }}
     device_type = "desktop"
     has_nvidia = true
     has_battery = false
-    screen_count = 3
     gui = true
     workstation = true
+    nfs_mount = true
     {{- else if eq .chezmoi.hostname "matrix.home.lan" }}
     device_type = "server"
     has_nvidia = false
     has_battery = false
-    screen_count = 0
     gui = false
     workstation = false
+    nfs_mount = false
     {{- else }}
     device_type = "unknown"
     has_nvidia = false
     has_battery = false
-    screen_count = 1
     gui = false
     workstation = false
+    nfs_mount = false
     {{- end }}

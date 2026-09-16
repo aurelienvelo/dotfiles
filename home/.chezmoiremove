@@ -1,0 +1,8 @@
+# Migration one-shot : anciens noms de fichiers zsh renommés avec un préfixe numérique
+.config/zsh/aliases.zsh
+.config/zsh/completion.zsh
+.config/zsh/functions.zsh
+.config/zsh/history.zsh
+.config/zsh/plugins.zsh
+.config/zsh/keybindings.zsh
+.config/zsh/prompt.zsh
