@@ -1,12 +1,9 @@
 return {
-  -- Syntax highlighting via tree-sitter
   {
     "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
-    event = { "BufReadPre", "BufNewFile" },
-    main = "nvim-treesitter.configs",
-    opts = {
-      ensure_installed = {
+    lazy = false,
+    build = function()
+      return require("nvim-treesitter").install({
         "bash",
         "lua",
         "vim",
@@ -25,9 +22,17 @@ return {
         "diff",
         "gitcommit",
         "dockerfile",
-      },
-      highlight = { enable = true },
-      indent = { enable = true },
-    },
+      }):wait(300000)
+    end,
+    config = function()
+      require("nvim-treesitter").setup({})
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function()
+          if pcall(vim.treesitter.start) then
+            vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
+    end,
   },
 }

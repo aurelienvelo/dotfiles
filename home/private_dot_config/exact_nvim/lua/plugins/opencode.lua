@@ -1,17 +1,20 @@
 return {
   -- Intégration de l'assistant opencode (CLI)
   {
-    "opencode-ai/opencode.nvim",
-    cmd = { "OpenCode", "OpenCodeChat" },
+    "nickjvandyke/opencode.nvim",
+    version = "*",
     keys = {
-      { "<leader>oa", "<cmd>OpenCodeChat<CR>", desc = "OpenCode: chat" },
-      { "<leader>oc", "<cmd>OpenCode<CR>", desc = "OpenCode: assistant" },
+      { "<leader>oa", function() require("opencode").ask("@this: ") end, desc = "OpenCode: ask" },
+      { "<leader>oc", function() require("opencode").select() end, desc = "OpenCode: select" },
     },
     config = function()
-      local ok, opencode = pcall(require, "opencode")
-      if ok then
-        opencode.setup({})
-      end
+      vim.g.opencode_opts = {}
+      vim.keymap.set({ "n", "x" }, "go", function()
+        return require("opencode").operator("@this ")
+      end, { desc = "OpenCode: append", expr = true })
+      vim.keymap.set({ "n" }, "goo", function()
+        return require("opencode").operator("@this ") .. "_"
+      end, { desc = "OpenCode: append line", expr = true })
     end,
   },
 }

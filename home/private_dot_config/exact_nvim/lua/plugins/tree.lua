@@ -3,6 +3,11 @@ return {
   {
     "nvim-tree/nvim-tree.lua",
     cmd = { "NvimTreeToggle", "NvimTreeFocus", "NvimTreeFindFile" },
+    keys = {
+      { "<leader>e", "<cmd>NvimTreeToggle<CR>", desc = "Explorer : bascule" },
+      { "<leader>E", "<cmd>NvimTreeFindFile<CR>", desc = "Explorer : fichier courant" },
+      { "<C-n>", "<cmd>NvimTreeToggle<CR>", desc = "Explorer : bascule", mode = { "n", "v" } },
+    },
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
       disable_netrw = true,

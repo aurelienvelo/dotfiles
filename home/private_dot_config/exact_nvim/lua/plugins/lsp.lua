@@ -32,14 +32,14 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     opts = {
       ensure_installed = {
-        "bashls",
-        "lua_ls",
+        "bash-language-server",
+        "lua-language-server",
         "pyright",
         "ruff",
-        "ts_ls",
-        "yamlls",
+        "typescript-language-server",
+        "yaml-language-server",
         "marksman",
-        "dockerls",
+        "dockerfile-language-server",
       },
       handlers = {
         function(server)

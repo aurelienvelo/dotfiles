@@ -23,14 +23,14 @@ return {
     "mfussenegger/nvim-lint",
     event = { "BufReadPre", "BufNewFile" },
     config = function()
-      require("nvim-lint").linters_by_ft = {
+      require("lint").linters_by_ft = {
         bash = { "shellcheck" },
         sh = { "shellcheck" },
         lua = { "luacheck" },
       }
       vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
         callback = function()
-          require("nvim-lint").try_lint()
+          require("lint").try_lint()
         end,
       })
     end,
