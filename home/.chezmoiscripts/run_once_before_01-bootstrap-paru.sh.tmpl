@@ -1,0 +1,20 @@
+#!/bin/sh
+set -euo pipefail
+{{ if eq .chezmoi.os "linux" -}}
+if ! command -v pacman >/dev/null 2>&1; then
+    exit 0
+fi
+
+if command -v paru >/dev/null 2>&1; then
+    exit 0
+fi
+
+echo "Installation de paru (AUR helper)..."
+
+sudo pacman -S --needed --noconfirm base-devel git
+
+TMP_APPROOT="$(mktemp -d)"
+git clone --depth 1 https://aur.archlinux.org/paru-bin.git "$TMP_APPROOT/paru-bin"
+(cd "$TMP_APPROOT/paru-bin" && makepkg --noconfirm -si)
+rm -rf "$TMP_APPROOT"
+{{ end -}}

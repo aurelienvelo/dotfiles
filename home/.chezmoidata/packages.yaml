@@ -9,7 +9,8 @@ packages:
     - 'nfs-utils'
     - 'less'
     - 'tree'
-    - 'exa'
+    - 'eza'
+    - 'xdg-utils'
     - 'btop'
     - 'fastfetch'
     - 'ripgrep'
@@ -20,7 +21,7 @@ packages:
     - 'mise'
     - 'direnv'
     - 'uv'
-    - 'nvchad-git'
+    - 'neovim'
     - 'zoxide'
     - 'bat'
     - 'dolphin'
@@ -33,8 +34,16 @@ packages:
     - 'k9s'
     - 'sops'
     - 'age'
+    - 'stylua'
+    - 'shfmt'
+    - 'shellcheck'
+    - 'yamlfmt'
+    - 'ruff'
+    - 'luacheck'
+    - 'tree-sitter-cli'
     - 'discord'
     - 'mpv'
+    - 'ttf-jetbrains-mono-nerd'
     aur:
     - 'brave-bin'
     - 'netbird-bin'
@@ -43,3 +52,4 @@ packages:
   darwin:
     brews:
     - 'git'
+    casks: []

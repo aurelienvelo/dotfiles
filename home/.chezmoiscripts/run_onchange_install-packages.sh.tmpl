@@ -1,5 +1,6 @@
 {{ if eq .chezmoi.os "linux" -}}
 #!/bin/bash
+set -euo pipefail
 
 packages=(
 {{ range .packages.arch.pacman -}}
@@ -18,6 +19,7 @@ fi
 
 {{ if eq .chezmoi.os "darwin" -}}
 #!/bin/bash
+set -euo pipefail
 
 brew bundle --file=/dev/stdin <<EOF
 {{ range .packages.darwin.brews -}}

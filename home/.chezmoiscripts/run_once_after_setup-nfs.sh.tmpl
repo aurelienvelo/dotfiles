@@ -4,7 +4,7 @@
 # Création des points de montage et écriture des unités Systemd Root
 if [ ! -d /nfs/media ] || [ ! -d /nfs/work ]; then
   sudo mkdir -p /nfs/media /nfs/work
-  sudo chown -R {{ .uid }}:{{ .gid }} /nfs
+  sudo chown -R {{ .chezmoi.uid }}:{{ .chezmoi.gid }} /nfs
 fi
 
 # Unité de montage pour Media

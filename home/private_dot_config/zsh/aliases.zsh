@@ -10,6 +10,8 @@ alias update='paru -Syu'
 alias v='nvim'
 alias o='xdg-open'
 alias g='git'
+alias lg='lazygit'
+alias cat='bat --paging=never'
 
 alias git-to-ssh='git-remote-convert ssh'
 alias git-to-https='git-remote-convert https'

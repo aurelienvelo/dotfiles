@@ -1,4 +1,3 @@
-# Configuration NVM (Node Version Manager) installé via Git/Manuel
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+# Node.js / npm — géré par mise (cf. plugins.zsh), nvm est abandonné.
+# Pour choisir une version dans le projet courant : mise use node@22
+export MISE_USE_TOML=1
