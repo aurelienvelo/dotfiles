@@ -16,3 +16,12 @@ alias cat='bat --paging=never'
 alias git-to-ssh='git-remote-convert ssh'
 alias git-to-https='git-remote-convert https'
 alias git-to-auto='git-remote-convert auto'
+
+# Raccourcissement de navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# Git courts (complément de lazygit)
+alias gl='git log --oneline --graph --decorate'
+alias gs='git status -sb'
+alias gd='git diff'
