@@ -50,6 +50,24 @@ packages:
     - 'netbird-bin'
     - 'netbird-ui-bin'
 
+  gui:
+    plasma:
+    - 'plasma-meta'
+    - 'plasma-nm'
+    - 'kdeplasma-addons'
+    - 'print-manager'
+    - 'xdg-desktop-portal-kde'
+    - 'kde-cli-tools'
+    nvidia:
+    - 'nvidia-open-dkms'
+    - 'nvidia-utils'
+    - 'nvidia-settings'
+    - 'egl-wayland'
+    - 'libva-nvidia-driver'
+    laptop:
+    - 'bluedevil'
+    - 'power-profiles-daemon'
+
   darwin:
     brews:
     - 'git'

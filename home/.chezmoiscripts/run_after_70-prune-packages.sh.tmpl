@@ -1,0 +1,50 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/bin/bash
+set -euo pipefail
+
+STATE_FILE="$HOME/.local/state/chezmoi/desired-packages.txt"
+{{ template "pkg-list.sh" . }}
+
+mapfile -t desired < <(desired_packages)
+
+previous=()
+if [[ -f "$STATE_FILE" ]]; then
+    mapfile -t previous < "$STATE_FILE"
+fi
+
+# Paquets qui étaient désirés et ne le sont plus
+readarray -t to_remove < <(
+    comm -23 \
+        <(printf '%s\n' "${previous[@]}" | sort -u) \
+        <(printf '%s\n' "${desired[@]}" | sort -u)
+)
+
+# Snapshot à jour (écrit même si rien à retirer)
+mkdir -p "$(dirname "$STATE_FILE")"
+if [ ${#desired[@]} -gt 0 ]; then
+    printf '%s\n' "${desired[@]}" > "$STATE_FILE"
+else
+    : > "$STATE_FILE"
+fi
+
+if [ ${#to_remove[@]} -eq 0 ]; then
+    exit 0
+fi
+
+# Sans stdin interactif on ne demande jamais de déinstaller
+if ! [[ -t 0 ]]; then
+    exit 0
+fi
+
+echo "Vont être désinstallés (retirés de la liste) :"
+printf '  - %s\n' "${to_remove[@]}"
+read -r -p "Supprimer ces paquets (paru -Rns) ? [y/N] " ans
+case "$ans" in
+    y|Y|yes)
+        paru -Rns --noconfirm "${to_remove[@]}"
+        ;;
+    *)
+        echo "Paquets conservés."
+        ;;
+esac
+{{ end -}}

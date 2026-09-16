@@ -2,14 +2,8 @@
 #!/bin/bash
 set -euo pipefail
 
-packages=(
-{{ range .packages.arch.pacman -}}
-    {{ . | quote }}
-{{ end -}}
-{{ range .packages.arch.aur -}}
-    {{ . | quote }}
-{{ end -}}
-)
+{{ template "pkg-list.sh" . }}
+mapfile -t packages < <(desired_packages)
 
 if [ ${#packages[@]} -gt 0 ]; then
     paru -S --noconfirm --needed "${packages[@]}"
