@@ -50,6 +50,7 @@ packages:
     - 'kubectx'
     - 'jq'
     - 'bitwarden-cli'
+    - 'opencode'
     aur: []
 
   netbird:
