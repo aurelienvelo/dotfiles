@@ -15,22 +15,33 @@
     has_battery = false
     screen_count = 1
     gui = true
+    workstation = false
     {{- else if eq .chezmoi.hostname "laptop" }}
     device_type = "laptop"
     has_nvidia = false
     has_battery = true
     screen_count = 1
     gui = true
+    workstation = true
     {{- else if eq .chezmoi.hostname "desktop" }}
     device_type = "desktop"
     has_nvidia = true
     has_battery = false
     screen_count = 3
     gui = true
+    workstation = true
+    {{- else if eq .chezmoi.hostname "matrix.home.lan" }}
+    device_type = "server"
+    has_nvidia = false
+    has_battery = false
+    screen_count = 0
+    gui = false
+    workstation = false
     {{- else }}
     device_type = "unknown"
     has_nvidia = false
     has_battery = false
     screen_count = 1
     gui = false
+    workstation = false
     {{- end }}

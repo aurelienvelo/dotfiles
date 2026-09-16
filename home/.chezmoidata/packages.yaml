@@ -2,7 +2,6 @@ packages:
   arch:
     pacman:
     - 'base-devel'
-    - 'ghostty'
     - 'tmux'
     - 'npm'
     - 'unzip'
@@ -25,9 +24,6 @@ packages:
     - 'neovim'
     - 'zoxide'
     - 'bat'
-    - 'dolphin'
-    - 'remmina'
-    - 'kmail'
     - 'rclone'
     - 'oci-cli'
     - 'kubectl'
@@ -42,13 +38,23 @@ packages:
     - 'ruff'
     - 'luacheck'
     - 'tree-sitter-cli'
-    - 'discord'
-    - 'mpv'
     - 'ttf-jetbrains-mono-nerd'
+    - 'fd'
+    - 'git-delta'
+    - 'yt-dlp'
+    - 'yq'
+    - 'ncdu'
+    - 'pacman-contrib'
+    - 'plocate'
+    - 'tealdeer'
+    - 'kubectx'
+    - 'jq'
+    - 'bitwarden-cli'
+    aur: []
+
+  netbird:
     aur:
-    - 'brave-bin'
     - 'netbird-bin'
-    - 'netbird-ui-bin'
 
   gui:
     plasma:
@@ -58,15 +64,39 @@ packages:
     - 'print-manager'
     - 'xdg-desktop-portal-kde'
     - 'kde-cli-tools'
+    - 'dolphin'
+    - 'kmail'
+    - 'remmina'
+    - 'discord'
+    - 'brave-bin'
+    - 'netbird-ui-bin'
+    - 'ghostty'
+    - 'ark'
+    - 'okular'
+    - 'gwenview'
+    - 'filelight'
+    - 'kdegraphics-thumbnailers'
+    - 'ffmpegthumbnailer'
+    - 'mediainfo'
+    - 'noto-fonts-emoji'
+    workstation:
+    - 'cups'
+    - 'mpv'
+    laptop:
+    - 'bluedevil'
+    - 'power-profiles-daemon'
+    - 'brightnessctl'
+    - 'bluez-utils'
+    desktop:
+    - 'podman'
+    - 'podman-compose'
+    - 'podman-docker'
     nvidia:
     - 'nvidia-open-dkms'
     - 'nvidia-utils'
     - 'nvidia-settings'
     - 'egl-wayland'
     - 'libva-nvidia-driver'
-    laptop:
-    - 'bluedevil'
-    - 'power-profiles-daemon'
 
   darwin:
     brews:

@@ -1,0 +1,86 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/bin/bash
+set -euo pipefail
+
+# Déploie un nettoyage périodique des paquets orphelins et du cache pacman
+#  - service + timer systemd hebdomadaire /etc/systemd/system/pacman-clean.{service,timer}
+#  - script /usr/local/bin/pacman-clean
+#  - active aussi paccache.timer fourni par pacman-contrib (trim du cache pacman)
+
+if systemctl --version >/dev/null 2>&1 && systemctl is-enabled pacman-clean.timer >/dev/null 2>&1; then
+    exit 0
+fi
+
+# Sans sudo non-interactif, on ne tente pas (le terminal interactif fera le prompt)
+if ! sudo -n true 2>/dev/null; then
+    if [[ ! -t 0 ]]; then
+        echo "pacman-clean : sudo requis pour déployer la config (lancer 'chezmoi apply' dans un terminal)."
+        exit 0
+    fi
+fi
+
+sudo bash -s <<'SR'
+set -euo pipefail
+
+# 1) Script de nettoyage
+cat > /usr/local/bin/pacman-clean <<'SH'
+#!/bin/bash
+# Nettoyage périodique pacman/paru
+#   - purge des paquets orphelins (plus requis par rien)
+#   - purge du cache des paquets non installés (paccache garde 2 versions sinon)
+set -euo pipefail
+
+if command -v paccache >/dev/null 2>&1; then
+    paccache -rk2 >/dev/null 2>&1 || true
+    paccache -ruk0 >/dev/null 2>&1 || true
+fi
+
+orphans="$(pacman -Qtdq 2>/dev/null || true)"
+if [[ -n "${orphans}" ]]; then
+    echo "=== Paquets orphelins supprimés ==="
+    echo "${orphans}"
+    pacman -Rns --noconfirm ${orphans}
+fi
+SH
+chmod +x /usr/local/bin/pacman-clean
+
+# 2) Service oneshot
+cat > /etc/systemd/system/pacman-clean.service <<'SE'
+[Unit]
+Description=Nettoyage des paquets orphelins et du cache pacman
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/pacman-clean
+Nice=19
+IOSchedulingClass=idle
+
+[Install]
+WantedBy=multi-user.target
+SE
+
+# 3) Timer hebdomadaire persisté
+cat > /etc/systemd/system/pacman-clean.timer <<'ST'
+[Unit]
+Description=Nettoyage hebdomadaire des paquets et du cache pacman/paru
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
+RandomizedDelaySec=2h
+
+[Install]
+WantedBy=timers.target
+ST
+
+# 4) Activation
+systemctl daemon-reload
+systemctl enable --now pacman-clean.timer
+if systemctl list-unit-files paccache.timer >/dev/null 2>&1; then
+    systemctl enable --now paccache.timer 2>/dev/null || true
+fi
+SR
+
+echo "pacman-clean : timer hebdomadaire déployé (orphelins + cache pacman)."
+{{ end -}}
