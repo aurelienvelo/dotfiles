@@ -7,6 +7,7 @@ packages:
     - 'npm'
     - 'unzip'
     - 'nfs-utils'
+    - 'lsof'
     - 'less'
     - 'tree'
     - 'eza'
