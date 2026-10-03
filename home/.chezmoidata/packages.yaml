@@ -1,105 +1,220 @@
 packages:
   arch:
-    pacman:
-    - 'base-devel'
-    - 'tmux'
-    - 'npm'
-    - 'unzip'
-    - 'nfs-utils'
-    - 'lsof'
-    - 'less'
-    - 'tree'
-    - 'eza'
-    - 'xdg-utils'
-    - 'btop'
-    - 'fastfetch'
-    - 'ripgrep'
-    - 'git'
-    - 'lazygit'
-    - 'zsh'
-    - 'fzf'
-    - 'mise'
-    - 'direnv'
-    - 'uv'
-    - 'neovim'
-    - 'zoxide'
-    - 'bat'
-    - 'rclone'
-    - 'oci-cli'
-    - 'kubectl'
-    - 'helm'
-    - 'k9s'
-    - 'sops'
-    - 'age'
-    - 'stylua'
-    - 'shfmt'
-    - 'shellcheck'
-    - 'yamlfmt'
-    - 'ruff'
-    - 'luacheck'
-    - 'tree-sitter-cli'
-    - 'ttf-jetbrains-mono-nerd'
-    - 'fd'
-    - 'git-delta'
-    - 'yt-dlp'
-    - 'yq'
-    - 'ncdu'
-    - 'pacman-contrib'
-    - 'plocate'
-    - 'tealdeer'
-    - 'kubectx'
-    - 'jq'
-    - 'bitwarden-cli'
-    - 'opencode'
-    aur: []
-
-  netbird:
-    aur:
-    - 'netbird-bin'
-
-  gui:
-    plasma:
-    - 'plasma-meta'
-    - 'plasma-nm'
-    - 'kdeplasma-addons'
-    - 'print-manager'
-    - 'xdg-desktop-portal-kde'
-    - 'kde-cli-tools'
-    - 'dolphin'
-    - 'kmail'
-    - 'remmina'
-    - 'discord'
-    - 'brave-bin'
-    - 'netbird-ui-bin'
-    - 'ghostty'
-    - 'ark'
-    - 'okular'
-    - 'gwenview'
-    - 'filelight'
-    - 'kdegraphics-thumbnailers'
-    - 'ffmpegthumbnailer'
-    - 'mediainfo'
-    - 'noto-fonts-emoji'
-    workstation:
-    - 'cups'
-    - 'mpv'
-    laptop:
-    - 'bluedevil'
-    - 'power-profiles-daemon'
-    - 'brightnessctl'
-    - 'bluez-utils'
-    desktop:
-    - 'podman'
-    - 'podman-compose'
-    - 'podman-docker'
-    nvidia:
-    - 'nvidia-open-dkms'
-    - 'nvidia-utils'
-    - 'nvidia-settings'
-    - 'egl-wayland'
-    - 'libva-nvidia-driver'
-
+    base:
+      pacman:
+        - 'base-devel'
+        - 'tmux'
+        - 'npm'
+        - 'unzip'
+        - 'nfs-utils'
+        - 'lsof'
+        - 'less'
+        - 'tree'
+        - 'eza'
+        - 'xdg-utils'
+        - 'btop'
+        - 'fastfetch'
+        - 'ripgrep'
+        - 'git'
+        - 'lazygit'
+        - 'zsh'
+        - 'fzf'
+        - 'mise'
+        - 'direnv'
+        - 'uv'
+        - 'neovim'
+        - 'zoxide'
+        - 'bat'
+        - 'rclone'
+        - 'oci-cli'
+        - 'kubectl'
+        - 'helm'
+        - 'k9s'
+        - 'sops'
+        - 'age'
+        - 'stylua'
+        - 'shfmt'
+        - 'shellcheck'
+        - 'yamlfmt'
+        - 'ruff'
+        - 'luacheck'
+        - 'tree-sitter-cli'
+        - 'ttf-jetbrains-mono-nerd'
+        - 'fd'
+        - 'git-delta'
+        - 'yt-dlp'
+        - 'yq'
+        - 'ncdu'
+        - 'pacman-contrib'
+        - 'plocate'
+        - 'tealdeer'
+        - 'kubectx'
+        - 'jq'
+        - 'bitwarden-cli'
+        - 'opencode'
+        - 'python-pipx'
+        - 'reflector'
+      aur: []
+    gui:
+      pacman:
+        - 'plasma-meta'
+        - 'plasma-nm'
+        - 'kdeplasma-addons'
+        - 'print-manager'
+        - 'xdg-desktop-portal-kde'
+        - 'kde-cli-tools'
+        - 'dolphin'
+        - 'kmail'
+        - 'remmina'
+        - 'discord'
+        - 'brave-bin'
+        - 'ghostty'
+        - 'ark'
+        - 'okular'
+        - 'gwenview'
+        - 'filelight'
+        - 'kdegraphics-thumbnailers'
+        - 'ffmpegthumbnailer'
+        - 'mediainfo'
+        - 'noto-fonts-emoji'
+        - 'cups'
+        - 'mpv'
+      aur: []
+    vpn:
+      aur:
+        - 'netbird-bin'
+    pentest:
+      osint:
+        blackarch:
+          - 'amass'
+          - 'subfinder'
+          - 'holehe'
+          - 'sherlock'
+        aur: []
+      network:
+        blackarch:
+          - 'nmap'
+          - 'masscan'
+          - 'rustscan'
+          - 'wireshark-cli'
+          - 'wireshark-qt'
+          - 'netdiscover'
+          - 'tcpdump'
+          - 'arp-scan'
+          - 'socat'
+          - 'proxychains-ng'
+          - 'openbsd-netcat'
+          - 'nbtscan'
+          - 'smbclient'
+          - 'testssl.sh'
+          - 'ssh-audit'
+        aur: []
+      vuln_scanners:
+        blackarch:
+          - 'nikto'
+          - 'nuclei'
+        aur: []
+      wordlists:
+        blackarch:
+          - 'seclists'
+        aur: []
+      web:
+        blackarch:
+          - 'burpsuite'
+          - 'zaproxy'
+          - 'sqlmap'
+          - 'ffuf'
+          - 'feroxbuster'
+          - 'gobuster'
+          - 'wpscan'
+          - 'whatweb'
+          - 'wafw00f'
+          - 'arjun'
+          - 'dalfox'
+          - 'httpx'
+          - 'tlsx'
+          - 'uncover'
+          - 'proxify'
+          - 'katana-pd'
+        aur: []
+      ad_windows:
+        blackarch:
+          - 'netexec'
+          - 'responder'
+          - 'impacket'
+          - 'bloodhound-python'
+          - 'bloodhound-ce-python'
+          - 'enum4linux-ng'
+          - 'smbmap'
+          - 'evil-winrm'
+          - 'coercer'
+          - 'bloodyad'
+          - 'kerbrute'
+          - 'pkinittools'
+        aur: []
+      wifi:
+        blackarch:
+          - 'aircrack-ng'
+          - 'wifite'
+          - 'hcxdumptool'
+          - 'hcxtools'
+          - 'bettercap'
+          - 'kismet'
+        aur: []
+      container:
+        blackarch:
+          - 'trivy'
+          - 'grype'
+        aur: []
+      exploit_post:
+        blackarch:
+          - 'metasploit'
+          - 'sliver'
+          - 'chisel'
+          - 'ligolo-ng'
+          - 'pspy'
+        aur:
+          - 'peass-ng'
+          - 'exploitdb-git'
+      cracking:
+        blackarch:
+          - 'hashcat'
+          - 'john'
+          - 'hydra'
+          - 'cewl'
+          - 'crunch'
+          - 'patator'
+          - 'medusa'
+        aur: []
+      re:
+        blackarch:
+          - 'ghidra'
+          - 'radare2'
+          - 'gdb'
+          - 'ropper'
+          - 'one_gadget'
+          - 'python-pwntools'
+        aur: []
+      reporting:
+        blackarch: []
+        aur: []
+    container:
+      pacman:
+        - 'podman'
+        - 'podman-compose'
+        - 'podman-docker'
+      aur: []
+    virtualization:
+      pacman:
+        - 'libvirt'
+        - 'qemu-desktop'
+        - 'virt-manager'
+        - 'dnsmasq'
+        - 'bridge-utils'
+        - 'ebtables'
+        - 'vde2'
+      aur: []
   darwin:
     brews:
-    - 'git'
+      - 'git'
     casks: []

@@ -1,1 +1,4 @@
 ssh_pubkeys_registry
+{{ if not (dig "pentest" false .) -}}
+.config/zsh/env/pentest-docker.zsh
+{{ end -}}

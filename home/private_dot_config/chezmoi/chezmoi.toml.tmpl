@@ -2,7 +2,7 @@
     exclude = ["scripts"]
 
 [hooks.read-source-state.pre]
-    command = "{{ .chezmoi.sourceDir }}/.chezmoiscripts/.install-password-manager.sh"
+    command = "{{ .chezmoi.sourceDir }}/.chezmoihooks/install-password-manager.sh"
 
 [data]
     # username, uid et gid sont auto-détectés par les built-ins .chezmoi.*
@@ -13,34 +13,54 @@
     has_nvidia = false
     has_battery = false
     gui = true
-    workstation = false
+    vpn = false
+    pentest = true
+    wifi = false
+    container = false
+    virtualization = false
     nfs_mount = true
     {{- else if eq .chezmoi.hostname "laptop" }}
     device_type = "laptop"
     has_nvidia = false
     has_battery = true
     gui = true
-    workstation = true
+    vpn = true
+    pentest = true
+    wifi = true
+    container = false
+    virtualization = false
     nfs_mount = true
     {{- else if eq .chezmoi.hostname "desktop" }}
     device_type = "desktop"
     has_nvidia = true
     has_battery = false
     gui = true
-    workstation = true
+    vpn = true
+    pentest = true
+    wifi = true
+    container = true
+    virtualization = true
     nfs_mount = true
     {{- else if eq .chezmoi.hostname "matrix.home.lan" }}
     device_type = "server"
     has_nvidia = false
     has_battery = false
     gui = false
-    workstation = false
+    vpn = false
+    pentest = false
+    wifi = false
+    container = false
+    virtualization = false
     nfs_mount = false
     {{- else }}
     device_type = "unknown"
     has_nvidia = false
     has_battery = false
     gui = false
-    workstation = false
+    vpn = false
+    pentest = false
+    wifi = false
+    container = false
+    virtualization = false
     nfs_mount = false
     {{- end }}

@@ -1,0 +1,22 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/bin/bash
+set -euo pipefail
+
+# Check if BlackArch repo is already configured
+if grep -q "blackarch.org" /etc/pacman.conf; then
+    echo "[blackarch] Repository already configured"
+    exit 0
+fi
+
+# Check if running interactively (has TTY)
+if [ -t 0 ]; then
+    echo "[blackarch] Installing BlackArch repository..."
+    curl -fsSL https://blackarch.org/strap.sh | sudo bash
+else
+    echo "[blackarch] Non-interactive mode detected."
+    echo "[blackarch] Please run the following command manually to install BlackArch:"
+    echo "[blackarch]   curl -fsSL https://blackarch.org/strap.sh | sudo bash"
+    echo "[blackarch] Skipping automatic installation."
+    exit 0
+fi
+{{ end -}}

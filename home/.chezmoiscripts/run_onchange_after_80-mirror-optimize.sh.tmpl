@@ -1,0 +1,157 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/bin/bash
+set -euo pipefail
+
+# Optimisation / vérification des miroirs POUR TOUS LES DÉPÔTS :
+#  - Arch officiel (core/extra) : reflector + /etc/xdg/reflector/reflector.conf
+#    (tri par débit, 15 meilleurs miroirs https) + timer quotidien
+#  - BlackArch : /usr/local/bin/blackarch-mirror-optimize (latence puis débit
+#    sur blackarch.db pour les 123 candidats du mirrorlist) + timer hebdo
+# Le mirrorlist d'origine (strap.sh) est conservé en *.strap-backup.
+
+if ! command -v reflector >/dev/null 2>&1; then
+    echo "[mirror-optimize] reflector absent (paquet 'reflector'), report au prochain apply."
+    exit 0
+fi
+
+# Sans sudo non-interactif, on n'écrit pas dans /etc (même garde que pacman-cleanup)
+if ! sudo -n true 2>/dev/null; then
+    if [[ ! -t 0 ]]; then
+        echo "[mirror-optimize] sudo requis pour déployer (lancer 'chezmoi apply' dans un terminal)."
+        exit 0
+    fi
+fi
+
+sudo bash -s <<'SR'
+set -euo pipefail
+
+# 1) Conf reflector — dépôts officiels Arch
+mkdir -p /etc/xdg/reflector
+cat > /etc/xdg/reflector/reflector.conf <<'CONF'
+--save /etc/pacman.d/mirrorlist
+--protocol https
+--latest 30
+--number 15
+--sort rate
+CONF
+
+# 2) Optimiseur BlackArch
+cat > /usr/local/bin/blackarch-mirror-optimize <<'SH'
+#!/bin/bash
+# Sonde chaque miroir BlackArch (latence HEAD puis débit sur 256 Ko de
+# blackarch.db), réécrit le mirrorlist : top 3 actifs, vivants triés par
+# débit (commentés), morts rejetés en fin de fichier.
+set -uo pipefail
+
+ML=/etc/pacman.d/blackarch-mirrorlist
+log() { echo "[ba-mirror] $*"; }
+
+# mode worker : --probe <url-modele> <fichier-resultat>
+if [[ "${1:-}" == "--probe" ]]; then
+    url="$2"; out="$3"
+    db="${url//\$repo/blackarch}"
+    db="${db//\$arch/x86_64}"
+    db="${db%/}/blackarch.db"
+    t="$(curl -s -o /dev/null -I -w '%{http_code} %{time_total}' --max-time 6 "$db" 2>/dev/null)" || exit 0
+    code="${t%% *}"; lat="${t##* }"
+    [[ "$code" == "200" ]] || exit 0
+    d="$(curl -s -o /dev/null -r 0-262143 -w '%{time_total}' --max-time 15 "$db" 2>/dev/null)" || exit 0
+    speed="$(awk -v s="$d" 'BEGIN{ if (s+0 > 0) printf "%.0f", 262144/s/1024; else print 0 }')"
+    printf '%s %s %s\n' "$speed" "$lat" "$url" > "$out"
+    exit 0
+fi
+
+[[ -f "$ML" ]] || { log "$ML introuvable"; exit 0; }
+command -v curl >/dev/null 2>&1 || { log "curl absent"; exit 0; }
+
+candidates="$(grep -E '^#?Server[[:space:]]*=' "$ML" | sed -E 's/^#?Server[[:space:]]*=[[:space:]]*//' | sort -u)"
+[[ -n "$candidates" ]] || { log "aucun candidat"; exit 0; }
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+# sondes parallèles (8 max) — le worker se ré-invoque (bash "$0" : pas
+# besoin du bit d'exécution, robuste même si le fichier est recopié)
+i=0
+while IFS= read -r u; do
+    i=$((i+1))
+    bash "$0" --probe "$u" "$tmp/r$i" &
+    while (( $(jobs -rp | wc -l) >= 8 )); do wait -n; done
+done <<< "$candidates"
+wait
+
+shopt -s nullglob
+res=("$tmp"/r*)
+shopt -u nullglob
+if (( ${#res[@]} == 0 )); then
+    log "aucun miroir joignable — mirrorlist inchangé"
+    exit 0
+fi
+
+cp -n "$ML" "$ML.strap-backup" 2>/dev/null || true
+{
+    echo "# Optimisé par blackarch-mirror-optimize le $(date -Is)"
+    echo "# Miroirs vivants triés par débit sur blackarch.db — top 3 actifs"
+    n=0
+    while read -r speed lat url; do
+        n=$((n+1))
+        if (( n <= 3 )); then
+            echo "Server = $url"
+        else
+            echo "#Server = $url   (${speed} Ko/s, ${lat}s)"
+        fi
+    done < <(sort -k1,1nr -k2,2n "${res[@]}")
+    # morts : re-commentés en fin de fichier (conservés comme candidats)
+    while IFS= read -r u; do
+        grep -qF " $u" "${res[@]}" || echo "#Server = $u   (hors ligne le $(date +%F))"
+    done <<< "$candidates"
+} > "$ML"
+
+log "mirrorlist réécrit : $(grep -c '^Server' "$ML") actif(s) / ${#res[@]} vivant(s)"
+SH
+chmod +x /usr/local/bin/blackarch-mirror-optimize
+
+# 3) Unités systemd
+cat > /etc/systemd/system/blackarch-mirror-optimize.service <<'SE'
+[Unit]
+Description=Optimisation du miroir BlackArch (latence + débit)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/blackarch-mirror-optimize
+Nice=19
+IOSchedulingClass=idle
+
+[Install]
+WantedBy=multi-user.target
+SE
+
+cat > /etc/systemd/system/blackarch-mirror-optimize.timer <<'ST'
+[Unit]
+Description=Optimisation hebdomadaire des miroirs BlackArch
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
+RandomizedDelaySec=1h
+
+[Install]
+WantedBy=timers.target
+ST
+
+systemctl daemon-reload
+systemctl enable --now blackarch-mirror-optimize.timer
+systemctl enable --now reflector.timer
+SR
+
+# 4) Exécution immédiate (aujourd'hui, pas au prochain timer)
+#    Syntaxe @fichier (reflector n'a PAS d'option --config) — même appel
+#    que l'unité systemd : ExecStart=/usr/bin/reflector @/etc/xdg/...
+sudo reflector @/etc/xdg/reflector/reflector.conf \
+    || echo "[mirror-optimize] reflector a échoué (réseau ?), le timer réessaiera"
+sudo /usr/local/bin/blackarch-mirror-optimize || true
+
+echo "[mirror-optimize] timers activés : reflector (quotidien), blackarch-mirror-optimize (hebdo)"
+{{ end -}}

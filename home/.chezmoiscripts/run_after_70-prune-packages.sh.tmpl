@@ -36,6 +36,23 @@ if ! [[ -t 0 ]]; then
     exit 0
 fi
 
+# Conserve les paquets encore requis par un paquet installé
+# (ex: aircrack-ng exigé par katana-framework même sur machine sans WiFi)
+filtered=()
+for pkg in "${to_remove[@]}"; do
+    required_by="$(LC_ALL=C pacman -Qi "$pkg" 2>/dev/null | awk -F': ' '/^Required By/{print $2}')"
+    if [[ -n "$required_by" && "$required_by" != "None" ]]; then
+        echo "Conservé (requis par : $required_by) : $pkg"
+        continue
+    fi
+    filtered+=("$pkg")
+done
+to_remove=("${filtered[@]}")
+
+if [ ${#to_remove[@]} -eq 0 ]; then
+    exit 0
+fi
+
 echo "Vont être désinstallés (retirés de la liste) :"
 printf '  - %s\n' "${to_remove[@]}"
 read -r -p "Supprimer ces paquets (paru -Rns) ? [y/N] " ans

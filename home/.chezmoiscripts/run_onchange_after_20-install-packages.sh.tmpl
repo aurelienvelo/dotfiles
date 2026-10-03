@@ -6,7 +6,11 @@ set -euo pipefail
 mapfile -t packages < <(desired_packages)
 
 if [ ${#packages[@]} -gt 0 ]; then
-    paru -S --noconfirm --needed "${packages[@]}"
+    # -Syu obligatoire :
+    #  - sans -y : bases synchrones périmées → 404 sur les paquets
+    #    reconstruits et purgés des miroirs (ex: seclists)
+    #  - sans -u : installation partielle, non supportée sous Arch
+    paru -Syu --noconfirm --needed "${packages[@]}"
 fi
 {{ end -}}
 
