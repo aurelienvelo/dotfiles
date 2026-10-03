@@ -7,7 +7,7 @@ set -euo pipefail
 
 if ! command -v bw >/dev/null 2>&1; then
     echo "ERREUR: bitwarden-cli (bw) absent."
-    echo "Lancez d'abord: $HOME/.local/share/chezmoi/home/.chezmoiscripts/.install-password-manager.sh"
+    echo "Lancez d'abord: $HOME/.local/share/chezmoi/home/.chezmoihooks/install-password-manager.sh"
     exit 1
 fi
 

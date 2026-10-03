@@ -113,6 +113,7 @@ Both run once immediately at deploy.
 | `.chezmoiscripts/run_onchange_after_40-pentest-extras.sh.tmpl` | pipx + GitHub binaries |
 | `.chezmoiscripts/run_onchange_after_80-mirror-optimize.sh.tmpl` | reflector + BlackArch mirror optimizer timers |
 | `.chezmoihooks/install-password-manager.sh` | pre-read-source-state hook (bw CLI) |
+| `.chezmoiscripts/.install-password-manager.sh` | Compat shim forwarding to the real hook — keeps stale deployed configs (old hook path) from blocking chezmoi; remove once all devices re-applied |
 | `private_dot_config/zsh/env/pentest-docker.zsh` | Pentest container aliases |
 
 ## Manual Steps Required

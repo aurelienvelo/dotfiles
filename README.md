@@ -160,6 +160,7 @@ sudo blackarch-mirror-optimize
 | `private_dot_config/chezmoi/chezmoi.toml.tmpl` | Device detection + hooks |
 | `.chezmoiscripts/*.sh(.tmpl)` | Lifecycle scripts |
 | `.chezmoihooks/install-password-manager.sh` | pre-read-source-state hook |
+| `.chezmoiscripts/.install-password-manager.sh` | Compat shim : délègue au hook réel pour les configs déployées avant le déplacement (supprimable après ré-apply de tous les appareils) |
 | `private_dot_config/zsh/env/pentest-docker.zsh` | Pentest container aliases |
 
 ## Troubleshooting
