@@ -113,7 +113,6 @@ Both run once immediately at deploy.
 | `.chezmoiscripts/run_onchange_after_40-pentest-extras.sh.tmpl` | pipx + GitHub binaries |
 | `.chezmoiscripts/run_onchange_after_80-mirror-optimize.sh.tmpl` | reflector + BlackArch mirror optimizer timers |
 | `.chezmoihooks/install-password-manager.sh` | pre-read-source-state hook (bw CLI) |
-| `.chezmoiscripts/.install-password-manager.sh` | Compat shim forwarding to the real hook — keeps stale deployed configs (old hook path) from blocking chezmoi; remove once all devices re-applied |
 | `private_dot_config/zsh/env/pentest-docker.zsh` | Pentest container aliases |
 
 ## Manual Steps Required
@@ -127,6 +126,21 @@ Both run once immediately at deploy.
    ```bash
    chezmoi apply
    ```
+
+## Validation (before push)
+
+Branches gated by flags (`vpn`, `wifi`, `container`, `virtualization`,
+`has_nvidia`, `has_battery`) never render on the dev machine (vm-dev has most
+flags false) — this shipped a `vpn.pacman` missing-key error that broke apply
+on other devices. After editing `packages.yaml`, `pkg-list.sh` or any script
+using them:
+
+```bash
+# 1) render with ALL flags true (copy of the deployed config, flags flipped)
+chezmoi --config /tmp/allflags.toml execute-template '{{ template "pkg-list.sh" . }}' | bash -c 'source /dev/stdin && desired_packages' | wc -l
+# 2) cross-check the count against an independent yq/jq sum of packages.yaml
+# 3) bash -n every rendered script touched
+```
 
 ## Troubleshooting
 

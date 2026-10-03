@@ -14,16 +14,16 @@ desired_packages() {
 
   # BASE - toujours
   local base_pkgs=(
-  {{ range .packages.arch.base.pacman }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.base.aur }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "pacman" (list) .packages.arch.base }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.base }}{{ "  " }}{{ . | quote }}{{ end }}
   )
   pkgs+=("${base_pkgs[@]}")
 
   # GUI
   {{ if $gui }}
   local gui_pkgs=(
-  {{ range .packages.arch.gui.pacman }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.gui.aur }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "pacman" (list) .packages.arch.gui }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.gui }}{{ "  " }}{{ . | quote }}{{ end }}
   )
   pkgs+=("${gui_pkgs[@]}")
   {{ end }}
@@ -31,8 +31,8 @@ desired_packages() {
   # VPN
   {{ if $vpn }}
   local vpn_pkgs=(
-  {{ range .packages.arch.vpn.pacman }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.vpn.aur }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "pacman" (list) .packages.arch.vpn }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.vpn }}{{ "  " }}{{ . | quote }}{{ end }}
   )
   pkgs+=("${vpn_pkgs[@]}")
   {{ end }}
@@ -60,35 +60,36 @@ desired_packages() {
   pkgs+=("${lap_pkgs[@]}")
   {{ end }}
 
-  # PENTEST (BlackArch + AUR)
+  # PENTEST (BlackArch + AUR) — dig : une clé absente rend une liste vide
+  # au lieu de casser l'apply sur les appareils où la branche est activée
   {{ if $pentest }}
   local pentest_pkgs=(
-  {{ range .packages.arch.pentest.osint.blackarch }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.osint.aur }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.network.blackarch }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.network.aur }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.vuln_scanners.blackarch }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.vuln_scanners.aur }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.wordlists.blackarch }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.wordlists.aur }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.web.blackarch }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.web.aur }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.ad_windows.blackarch }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.ad_windows.aur }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "blackarch" (list) .packages.arch.pentest.osint }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.pentest.osint }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "blackarch" (list) .packages.arch.pentest.network }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.pentest.network }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "blackarch" (list) .packages.arch.pentest.vuln_scanners }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.pentest.vuln_scanners }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "blackarch" (list) .packages.arch.pentest.wordlists }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.pentest.wordlists }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "blackarch" (list) .packages.arch.pentest.web }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.pentest.web }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "blackarch" (list) .packages.arch.pentest.ad_windows }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.pentest.ad_windows }}{{ "  " }}{{ . | quote }}{{ end }}
   {{ if $wifi }}
-  {{ range .packages.arch.pentest.wifi.blackarch }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.wifi.aur }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "blackarch" (list) .packages.arch.pentest.wifi }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.pentest.wifi }}{{ "  " }}{{ . | quote }}{{ end }}
   {{ end }}
-  {{ range .packages.arch.pentest.container.blackarch }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.container.aur }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.exploit_post.blackarch }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.exploit_post.aur }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.cracking.blackarch }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.cracking.aur }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.re.blackarch }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.re.aur }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.reporting.blackarch }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.pentest.reporting.aur }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "blackarch" (list) .packages.arch.pentest.container }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.pentest.container }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "blackarch" (list) .packages.arch.pentest.exploit_post }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.pentest.exploit_post }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "blackarch" (list) .packages.arch.pentest.cracking }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.pentest.cracking }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "blackarch" (list) .packages.arch.pentest.re }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.pentest.re }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "blackarch" (list) .packages.arch.pentest.reporting }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.pentest.reporting }}{{ "  " }}{{ . | quote }}{{ end }}
   )
   pkgs+=("${pentest_pkgs[@]}")
   {{ end }}
@@ -96,8 +97,8 @@ desired_packages() {
   # CONTAINER
   {{ if $container }}
   local container_pkgs=(
-  {{ range .packages.arch.container.pacman }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.container.aur }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "pacman" (list) .packages.arch.container }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.container }}{{ "  " }}{{ . | quote }}{{ end }}
   )
   pkgs+=("${container_pkgs[@]}")
   {{ end }}
@@ -105,8 +106,8 @@ desired_packages() {
   # VIRTUALIZATION
   {{ if $virtualization }}
   local virt_pkgs=(
-  {{ range .packages.arch.virtualization.pacman }}{{ "  " }}{{ . | quote }}{{ end }}
-  {{ range .packages.arch.virtualization.aur }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "pacman" (list) .packages.arch.virtualization }}{{ "  " }}{{ . | quote }}{{ end }}
+  {{ range dig "aur" (list) .packages.arch.virtualization }}{{ "  " }}{{ . | quote }}{{ end }}
   )
   pkgs+=("${virt_pkgs[@]}")
   {{ end }}

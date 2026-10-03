@@ -20,10 +20,10 @@ fi
 set -euo pipefail
 
 brew bundle --file=/dev/stdin <<EOF
-{{ range .packages.darwin.brews -}}
+{{ range dig "brews" (list) .packages.darwin -}}
 brew {{ . | quote }}
 {{ end -}}
-{{ range .packages.darwin.casks -}}
+{{ range dig "casks" (list) .packages.darwin -}}
 cask {{ . | quote }}
 {{ end -}}
 EOF
