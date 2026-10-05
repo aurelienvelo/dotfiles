@@ -20,15 +20,39 @@ oci_installed_version() {
     "$OCI_DIR/bin/python" -c "import importlib.metadata; print(importlib.metadata.version('oci-cli'))" 2>/dev/null || true
 }
 
+OCI_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/oci-cli-completion.zsh"
+
+# Completion zsh (20-completion.zsh source ce fichier) : sous click>=8, le
+# glue bash d'Oracle (_OCI_COMPLETE=complete, ère click7) rend une sortie
+# vide — la voie native est _OCI_COMPLETE=zsh_source, dont le script généré
+# appelle le binaire au TAB (_OCI_COMPLETE=zsh_complete). La génération coûte
+# 1,3 s → cache ; inconditionnelle après install/mise à jour (click peut
+# changer de version), sinon seulement si le cache est absent.
+# Usage : gen_zsh_completion [force]
+gen_zsh_completion() {
+    [ -x "$OCI_BIN" ] || return 0
+    [ "${1:-}" != "force" ] && [ -s "$OCI_CACHE" ] && return 0
+    local tmp="$OCI_CACHE.tmp.$$"
+    if _OCI_COMPLETE=zsh_source "$OCI_BIN" >"$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+        mv "$tmp" "$OCI_CACHE"
+    else
+        rm -f "$tmp"
+        echo "[oci-cli] échec génération completion zsh (non fatal)" >&2
+    fi
+    return 0
+}
+
 installed="$(oci_installed_version)"
 latest="$(curl -fsSL --max-time 20 "$PYPI_URL" 2>/dev/null | jq -r '.info.version // empty' 2>/dev/null || true)"
 
 if [ -n "$installed" ] && [ "$installed" = "$latest" ]; then
+    gen_zsh_completion
     echo "[oci-cli] à jour ($installed)"
     exit 0
 fi
 
 if [ -n "$installed" ] && [ -z "$latest" ]; then
+    gen_zsh_completion
     echo "[oci-cli] PyPI injoignable — version installée $installed conservée"
     exit 0
 fi
@@ -49,6 +73,7 @@ bash -c "$installer" oci-installer \
     --script-dir "$HOME/bin/oci-cli-scripts"
 
 if [ -x "$OCI_BIN" ] && "$OCI_BIN" --version >/dev/null 2>&1; then
+    gen_zsh_completion force
     echo "[oci-cli] installé : version $(oci_installed_version) → $OCI_BIN"
 else
     echo "[oci-cli] échec : $OCI_BIN non fonctionnel" >&2

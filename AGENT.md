@@ -86,7 +86,7 @@ alphabetically within each phase:
 10. `60-setup-nfs.sh` - NFS mount units (after, once)
 11. `70-prune-packages.sh` - Offer removal of packages dropped from lists (after)
 12. `80-mirror-optimize.sh` - Deploy reflector + BlackArch mirror optimizer (after, onchange)
-13. `90-oci-cli.sh` - Official OCI CLI install/update via Oracle's install.sh (after, every apply; AUR pkg broken on py3.14)
+13. `90-oci-cli.sh` - Official OCI CLI install/update via Oracle's install.sh (after, every apply; AUR pkg broken on py3.14; also regenerates the zsh completion cache when needed)
 
 ## Mirror Management
 
@@ -113,9 +113,10 @@ Both run once immediately at deploy.
 | `.chezmoiscripts/run_once_before_05-setup-blackarch.sh.tmpl` | BlackArch repo setup |
 | `.chezmoiscripts/run_onchange_after_40-pentest-extras.sh.tmpl` | pipx + GitHub binaries |
 | `.chezmoiscripts/run_onchange_after_80-mirror-optimize.sh.tmpl` | reflector + BlackArch mirror optimizer timers |
-| `.chezmoiscripts/run_after_90-oci-cli.sh.tmpl` | Official OCI CLI install/update (venv `~/lib/oracle-cli`, launcher `~/bin/oci`) |
+| `.chezmoiscripts/run_after_90-oci-cli.sh.tmpl` | Official OCI CLI install/update (venv `~/lib/oracle-cli`, launcher `~/bin/oci`, zsh completion cache `~/.cache/oci-cli-completion.zsh`) |
 | `.chezmoihooks/install-password-manager.sh` | pre-read-source-state hook (bw CLI) |
 | `private_dot_config/zsh/env/pentest-docker.zsh` | Pentest container aliases |
+| `private_dot_config/zsh/20-completion.zsh` | zsh compinit + sources the cached OCI completion (click8 `zsh_source` protocol) |
 
 ## Manual Steps Required
 

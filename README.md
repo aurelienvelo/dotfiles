@@ -131,7 +131,7 @@ AFTER (alphabetical)
   60-setup-nfs.sh          (once)     # NFS mount units
   70-prune-packages.sh     (every)    # uninstall packages removed from the list
   80-mirror-optimize.sh    (onchange) # reflector + BlackArch mirror optimizer
-  90-oci-cli.sh            (every)    # official Oracle installer (AUR pkg broken on py3.14)
+  90-oci-cli.sh            (every)    # official Oracle installer + zsh completion cache (AUR pkg broken on py3.14)
 ```
 
 `onchange` scripts re-run automatically when their content changes, so editing
