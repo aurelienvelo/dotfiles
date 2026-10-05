@@ -1,0 +1,57 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/bin/bash
+set -euo pipefail
+
+# OCI CLI — voie officielle Oracle (le paquet AUR est cassé sous Python 3.14 :
+# ModuleNotFoundError 'services' dans le site-packages système). L'installateur
+# officiel crée un venv isolé (~/lib/oracle-cli) et copie le lanceur dans
+# ~/bin/oci. Chaque apply compare la version installée à PyPI : installation
+# initiale ou mise à jour automatiques, sans sudo ni prompt.
+
+OCI_DIR="$HOME/lib/oracle-cli"
+OCI_BIN="$HOME/bin/oci"
+INSTALLER_URL="https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh"
+PYPI_URL="https://pypi.org/pypi/oci-cli/json"
+
+command -v python3 >/dev/null 2>&1 || { echo "[oci-cli] python3 absent, ignoré"; exit 0; }
+
+oci_installed_version() {
+    [ -x "$OCI_DIR/bin/python" ] || return 0
+    "$OCI_DIR/bin/python" -c "import importlib.metadata; print(importlib.metadata.version('oci-cli'))" 2>/dev/null || true
+}
+
+installed="$(oci_installed_version)"
+latest="$(curl -fsSL --max-time 20 "$PYPI_URL" 2>/dev/null | jq -r '.info.version // empty' 2>/dev/null || true)"
+
+if [ -n "$installed" ] && [ "$installed" = "$latest" ]; then
+    echo "[oci-cli] à jour ($installed)"
+    exit 0
+fi
+
+if [ -n "$installed" ] && [ -z "$latest" ]; then
+    echo "[oci-cli] PyPI injoignable — version installée $installed conservée"
+    exit 0
+fi
+
+echo "[oci-cli] ${installed:-installation initiale} → ${latest:-latest} : installateur officiel Oracle"
+installer="$(curl -fsSL --max-time 60 "$INSTALLER_URL")" || {
+    echo "[oci-cli] impossible de télécharger l'installateur" >&2
+    exit 1
+}
+
+# --install-dir explicite OBLIGATOIRE : sans lui, install.py passe par
+# get_install_dir() qui REFUSE un répertoire existant en mode
+# --accept-all-defaults → toute mise à jour échouerait.
+bash -c "$installer" oci-installer \
+    --accept-all-defaults \
+    --install-dir "$OCI_DIR" \
+    --exec-dir "$HOME/bin" \
+    --script-dir "$HOME/bin/oci-cli-scripts"
+
+if [ -x "$OCI_BIN" ] && "$OCI_BIN" --version >/dev/null 2>&1; then
+    echo "[oci-cli] installé : version $(oci_installed_version) → $OCI_BIN"
+else
+    echo "[oci-cli] échec : $OCI_BIN non fonctionnel" >&2
+    exit 1
+fi
+{{ end -}}

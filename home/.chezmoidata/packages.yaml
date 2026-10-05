@@ -26,7 +26,6 @@ packages:
         - 'zoxide'
         - 'bat'
         - 'rclone'
-        - 'oci-cli'
         - 'kubectl'
         - 'helm'
         - 'k9s'
