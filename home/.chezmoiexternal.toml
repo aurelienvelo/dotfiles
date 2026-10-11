@@ -1,0 +1,11 @@
+# Dépôts externes gérés par chezmoi (clonés au premier apply, puis `git pull`
+# au plus une fois par refreshPeriod, ou à la demande : chezmoi apply --refresh-externals).
+
+# Gestionnaire de plugins tmux. Les plugins eux-mêmes (resurrect, continuum...)
+# sont installés par TPM dans le même dossier : voir ~/.local/bin/tmux-bootstrap.
+[".config/tmux/plugins/tpm"]
+    type = "git-repo"
+    url = "https://github.com/tmux-plugins/tpm"
+    refreshPeriod = "168h"
+    clone.args = ["--depth", "1"]
+    pull.args = ["--ff-only"]

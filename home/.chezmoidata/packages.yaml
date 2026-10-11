@@ -18,6 +18,8 @@ packages:
         - 'git'
         - 'lazygit'
         - 'zsh'
+        - 'zsh-autosuggestions'
+        - 'zsh-syntax-highlighting'
         - 'fzf'
         - 'mise'
         - 'direnv'

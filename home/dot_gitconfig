@@ -3,6 +3,21 @@
   email = aurelien.velo@gmail.com
 [core]
   editor = nvim
+  # delta (paquet git-delta) : diffs colorés avec numéros de ligne
+  pager = delta
+[interactive]
+  # `git add -p` passe aussi par delta (--color-only : garde le format attendu par git)
+  diffFilter = delta --color-only
+[delta]
+  # n / N pour sauter d'un fichier à l'autre dans le pager
+  navigate = true
+  line-numbers = true
+  dark = true
+[merge]
+  # Affiche aussi la version ancêtre commune dans les conflits
+  conflictStyle = zdiff3
+[diff]
+  colorMoved = default
 [init]
   defaultBranch = main
 [pull]

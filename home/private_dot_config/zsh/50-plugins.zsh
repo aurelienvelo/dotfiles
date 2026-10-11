@@ -12,6 +12,13 @@ if [[ -f /usr/share/fzf/completion.zsh ]]; then
     source /usr/share/fzf/completion.zsh
 fi
 
+# Suggestions grisées tirées de l'historique (→ ou Ctrl-E pour accepter).
+# zsh-syntax-highlighting est chargé à part, en dernier (99-syntax-highlighting.zsh).
+if [[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
+
 # Tmux automatique, sauf :
 #  - session SSH (on ne veut pas imbriquer avec un tmux local ou distant)
 #  - terminaux embarqués (Dolphin/Kate via KONSOLE_DBUS_SESSION, VS Code,

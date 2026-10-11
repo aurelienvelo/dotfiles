@@ -1,28 +1,28 @@
 #!/bin/bash
 set -euo pipefail
 
+# TPM lui-même est cloné et mis à jour par chezmoi (.chezmoiexternal.toml).
+# Ce script installe seulement les plugins déclarés dans plugins.conf, une fois.
 TPM="$HOME/.config/tmux/plugins/tpm"
-
-# Installer TPM si nécessaire
-if [ ! -d "$TPM" ]; then
-    git clone -q https://github.com/tmux-plugins/tpm "$TPM"
-fi
-
-# Installer les plugins une seule fois
 STAMP="$HOME/.local/state/tmux/plugins-installed"
 
-if [ ! -f "$STAMP" ]; then
-    # Serveur tmux jetable sur un socket isolé (TMUX_TMPDIR hérité par les
-    # appels tmux de TPM) : le kill-server final ne touche pas aux sessions
-    # existantes de l'utilisateur.
-    TMUX_TMPDIR="$(mktemp -d)"
-    export TMUX_TMPDIR
-    unset TMUX
-    trap 'tmux kill-server 2>/dev/null || true; rm -rf "$TMUX_TMPDIR"' EXIT
+[ -f "$STAMP" ] && exit 0
 
-    tmux new-session -d -s bootstrap
-    "$TPM/bin/install_plugins"
-
-    mkdir -p "$(dirname "$STAMP")"
-    touch "$STAMP"
+if [ ! -x "$TPM/bin/install_plugins" ]; then
+    echo "tmux-bootstrap : TPM absent, lancer 'chezmoi apply'" >&2
+    exit 0
 fi
+
+# Serveur tmux jetable sur un socket isolé (TMUX_TMPDIR hérité par les
+# appels tmux de TPM) : le kill-server final ne touche pas aux sessions
+# existantes de l'utilisateur.
+TMUX_TMPDIR="$(mktemp -d)"
+export TMUX_TMPDIR
+unset TMUX
+trap 'tmux kill-server 2>/dev/null || true; rm -rf "$TMUX_TMPDIR"' EXIT
+
+tmux new-session -d -s bootstrap
+"$TPM/bin/install_plugins"
+
+mkdir -p "$(dirname "$STAMP")"
+touch "$STAMP"
