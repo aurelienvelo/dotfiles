@@ -1,0 +1,78 @@
+{{ if and (eq .chezmoi.os "linux") (dig "snapshots" false .) -}}
+#!/bin/bash
+set -euo pipefail
+
+# Snapshots btrfs de / avec snapper :
+#  - snap-pac : un snapshot avant/après chaque transaction pacman/paru (donc
+#    chaque `chezmoi apply`, qui fait un paru -Syu)
+#  - timeline : 5 snapshots horaires + 7 quotidiens
+# Retour arrière sur des fichiers ou paquets : snapper -c root undochange <avant>..<après>
+# /home, le cache pacman et /var/log sont des sous-volumes séparés : non inclus.
+
+if [ "$(findmnt -no FSTYPE /)" != "btrfs" ]; then
+    echo "[snapper] / n'est pas en btrfs, ignoré"
+    exit 0
+fi
+if ! command -v snapper >/dev/null 2>&1; then
+    echo "[snapper] snapper absent (installé par 20-install-packages), ignoré"
+    exit 0
+fi
+
+# Réglages de la config root (snapper set-config)
+SETTINGS=(
+    NUMBER_LIMIT=20             # paires pre/post de snap-pac : ~10 transactions
+    NUMBER_LIMIT_IMPORTANT=6
+    TIMELINE_CREATE=yes
+    TIMELINE_LIMIT_HOURLY=5
+    TIMELINE_LIMIT_DAILY=7
+    TIMELINE_LIMIT_WEEKLY=0
+    TIMELINE_LIMIT_MONTHLY=0
+    TIMELINE_LIMIT_YEARLY=0
+    ALLOW_GROUPS=wheel          # `snapper list` sans sudo pour le groupe wheel
+    SYNC_ACL=yes
+)
+
+snap_state() {
+    {
+        echo {{ include .chezmoi.sourceFile | sha256sum | quote }}
+        [ -f /etc/snapper/configs/root ] && echo config-root
+        grep -E '^PRUNENAMES' /etc/updatedb.conf
+        systemctl is-enabled snapper-timeline.timer snapper-cleanup.timer 2>/dev/null
+        true
+    } | sha256sum | cut -d' ' -f1
+}
+STAMP_WANT="$(snap_state)"
+{{ template "sudo-stamp.sh" "snapper" }}
+
+# 1. Config root : crée le sous-volume /.snapshots (dans @)
+if [ ! -f /etc/snapper/configs/root ]; then
+    if [ -e /.snapshots ]; then
+        echo "[snapper] /.snapshots existe déjà sans config snapper : à examiner à la main." >&2
+        exit 1
+    fi
+    echo "[snapper] création de la config root"
+    sudo snapper -c root create-config /
+    first=1
+fi
+sudo snapper -c root set-config "${SETTINGS[@]}"
+
+# 2. Nettoyage + timeline
+for t in snapper-timeline.timer snapper-cleanup.timer; do
+    systemctl is-enabled --quiet "$t" || sudo systemctl enable --now "$t"
+done
+
+# 3. plocate ne doit pas indexer les snapshots (chaque fichier y serait
+#    dupliqué autant de fois qu'il y a de snapshots)
+if ! grep -qE '^PRUNENAMES.*\.snapshots' /etc/updatedb.conf; then
+    sudo sed -i -E 's/^(PRUNENAMES = ".*)"/\1 .snapshots"/' /etc/updatedb.conf
+fi
+
+# 4. Premier snapshot de référence
+if [ "${first:-0}" = 1 ]; then
+    sudo snapper -c root create --description "chezmoi : référence initiale" --cleanup-algorithm number
+fi
+
+STAMP_WANT="$(snap_state)"
+stamp_done
+echo "[snapper] actif : snap-pac (pre/post pacman) + timeline, liste : snapper -c root list"
+{{ end -}}

@@ -9,6 +9,7 @@
 {{- $has_nvidia := dig "has_nvidia" false . -}}
 {{- $has_battery := dig "has_battery" false . -}}
 {{- $has_intel_gpu := dig "has_intel_gpu" false . -}}
+{{- $snapshots := dig "snapshots" false . -}}
 
 desired_packages() {
   local pkgs=()
@@ -58,6 +59,15 @@ desired_packages() {
     'intel-compute-runtime'
   )
   pkgs+=("${intel_pkgs[@]}")
+  {{ end }}
+
+  # SNAPSHOTS BTRFS (condition snapshots) : snapper + snapshots pre/post pacman
+  {{ if $snapshots }}
+  local snap_pkgs=(
+    'snapper'
+    'snap-pac'
+  )
+  pkgs+=("${snap_pkgs[@]}")
   {{ end }}
 
   # LAPTOP (condition has_battery)

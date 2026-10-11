@@ -16,7 +16,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC="$ROOT/home"
 # Flags lus par les templates (voir private_dot_config/chezmoi/chezmoi.toml.tmpl)
-FLAGS=(gui vpn pentest wifi container virtualization has_nvidia has_intel_gpu has_battery nfs_mount)
+FLAGS=(gui vpn pentest wifi container virtualization has_nvidia has_intel_gpu has_battery nfs_mount snapshots)
 
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT

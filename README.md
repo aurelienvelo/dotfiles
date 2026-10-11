@@ -51,7 +51,7 @@ Everything else (packages, external tools, aliases) is applied automatically.
 | **vm-dev** | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
 | **server** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-Hardware flags: `has_nvidia` (desktop: driver + OpenCL), `has_intel_gpu` (laptop: VA-API + OpenCL), `has_battery` (laptop).
+Hardware flags: `has_nvidia` (desktop: driver + OpenCL), `has_intel_gpu` (laptop: VA-API + OpenCL), `has_battery` (laptop), `snapshots` (laptop: snapper, btrfs).
 
 Detection via hostname in `chezmoi.toml.tmpl`. The `wifi` flag gates the WiFi
 toolset (no radio in a VM).
@@ -132,6 +132,8 @@ AFTER (alphabetical)
   25-system-services.sh    (every)    # services + groups per profile (sudo only if something is missing)
   30-pacman-cleanup.sh     (every*)   # weekly systemd cleanup timer
   40-pentest-extras.sh     (onchange) # GitHub binaries
+  27-firewall.sh           (every*)   # ufw: deny incoming + declared rules (gui profiles)
+  28-snapper.sh            (every*)   # snapper root config + timers (flag snapshots, btrfs)
   45-kde-theme.sh          (every)    # KDE appearance (kwriteconfig6, no sudo)
   46-plasmalogin.sh        (every*)   # login screen: wallpaper + Plasma settings
   50-deploy-ssh-keys.sh    (onchange) # propagate pubkeys over SSH (one connection per host)
@@ -150,6 +152,34 @@ they exit immediately when their stamp in `~/.local/state/chezmoi/stamps/`
 matches, and without sudo/TTY they postpone to the next interactive apply
 instead of being recorded as done (which is what `run_once_`/`run_onchange_`
 would do).
+
+## Firewall (ufw)
+
+GUI profiles only (on the server, `deny incoming` would cut SSH). Rules are in
+`.chezmoidata/firewall.yaml` and are only ever added: to drop one, remove it
+from the YAML and then run `sudo ufw status numbered && sudo ufw delete <N>`.
+
+Pentest: listeners (responder, ntlmrelayx, reverse shells) need a temporary
+rule scoped to the target, for example
+`sudo ufw allow in on <iface> from <target>`. Delete it after the engagement.
+
+## Btrfs Snapshots (snapper)
+
+Flag `snapshots` (laptop). `28-snapper` creates the `root` config: snap-pac
+takes a pre/post snapshot around every pacman/paru transaction, so around
+every `chezmoi apply`, and the timeline keeps 5 hourly + 7 daily snapshots.
+`/home`, the pacman cache and `/var/log` are separate subvolumes and are not
+included.
+
+```bash
+snapper -c root list                          # no sudo for the wheel group
+sudo snapper -c root status <pre>..<post>     # what a transaction changed
+sudo snapper -c root undochange <pre>..<post> # revert it
+```
+
+systemd-boot cannot boot a snapshot. If the system no longer boots, boot a live
+USB, mount the btrfs volume and restore the `@` subvolume from
+`@/.snapshots/<N>/snapshot`.
 
 ## KDE Plasma Appearance
 

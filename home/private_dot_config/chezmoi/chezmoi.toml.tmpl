@@ -20,6 +20,7 @@
     container = false
     virtualization = false
     nfs_mount = true
+    snapshots = false
     {{- else if eq .chezmoi.hostname "laptop" }}
     device_type = "laptop"
     has_nvidia = false
@@ -32,6 +33,7 @@
     container = false
     virtualization = false
     nfs_mount = true
+    snapshots = true
     {{- else if eq .chezmoi.hostname "desktop" }}
     device_type = "desktop"
     has_nvidia = true
@@ -44,6 +46,7 @@
     container = true
     virtualization = true
     nfs_mount = true
+    snapshots = false
     {{- else if eq .chezmoi.hostname "matrix.home.lan" }}
     device_type = "server"
     has_nvidia = false
@@ -56,6 +59,7 @@
     container = false
     virtualization = false
     nfs_mount = false
+    snapshots = false
     {{- else }}
     device_type = "unknown"
     has_nvidia = false
@@ -68,4 +72,5 @@
     container = false
     virtualization = false
     nfs_mount = false
+    snapshots = false
     {{- end }}
