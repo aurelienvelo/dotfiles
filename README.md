@@ -130,10 +130,10 @@ STATE
 AFTER (alphabetical)
   20-install-packages.sh   (onchange) # replaces migration + paru -Syu --needed of the full list
   25-system-services.sh    (every)    # services + groups per profile (sudo only if something is missing)
-  30-pacman-cleanup.sh     (every*)   # weekly systemd cleanup timer
-  40-pentest-extras.sh     (onchange) # GitHub binaries
   27-firewall.sh           (every*)   # ufw: deny incoming + declared rules (gui profiles)
   28-snapper.sh            (every*)   # snapper root config + timers (flag snapshots, btrfs)
+  30-pacman-cleanup.sh     (every*)   # weekly systemd cleanup timer
+  40-pentest-extras.sh     (onchange) # GitHub binaries
   45-kde-theme.sh          (every)    # KDE appearance (kwriteconfig6, no sudo)
   46-plasmalogin.sh        (every*)   # login screen: wallpaper + Plasma settings
   50-deploy-ssh-keys.sh    (onchange) # propagate pubkeys over SSH (one connection per host)
