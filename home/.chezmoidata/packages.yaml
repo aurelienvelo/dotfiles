@@ -58,6 +58,7 @@ packages:
         # DevOps
         - 'github-cli'
         - 'pre-commit'
+        - 'gitleaks'
         - 'opentofu'
         - 'ansible'
       aur:

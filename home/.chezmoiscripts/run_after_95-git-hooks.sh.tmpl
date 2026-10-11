@@ -1,0 +1,20 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/bin/bash
+set -euo pipefail
+
+# Installe les hooks pre-commit du dépôt chezmoi (.pre-commit-config.yaml :
+# gitleaks + tools/check.sh). Script run_ idempotent : sans pre-commit (pas
+# encore installé), on réessaie au prochain apply au lieu d'être marqué fait.
+
+repo={{ .chezmoi.workingTree | quote }}
+command -v pre-commit >/dev/null 2>&1 || exit 0
+[ -f "$repo/.pre-commit-config.yaml" ] || exit 0
+
+hook="$(git -C "$repo" rev-parse --git-path hooks/pre-commit)"
+case "$hook" in /*) ;; *) hook="$repo/$hook" ;; esac
+if [ -f "$hook" ] && grep -q 'pre-commit' "$hook"; then
+    exit 0
+fi
+
+(cd "$repo" && pre-commit install --hook-type pre-commit)
+{{ end -}}

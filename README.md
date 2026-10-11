@@ -59,7 +59,7 @@ toolset (no radio in a VM).
 ## Package Categories
 
 ### Base (All Devices)
-Essential CLI tools: `git`, `zsh`, `neovim`, `mise`, `direnv`, `uv`, `kubectl`, `helm`, `k9s`, `sops`, `age`, `ripgrep`, `fd`, `bat`, `fzf`, `btop`, `eza`, `yq`, `jq`, `bitwarden-cli`, `python-pipx`, `reflector`, `opencode`, `claude-code`, `zsh-autosuggestions`, `zsh-syntax-highlighting`; DevOps: `github-cli`, `pre-commit`, `opentofu`, `ansible`
+Essential CLI tools: `git`, `zsh`, `neovim`, `mise`, `direnv`, `uv`, `kubectl`, `helm`, `k9s`, `sops`, `age`, `ripgrep`, `fd`, `bat`, `fzf`, `btop`, `eza`, `yq`, `jq`, `bitwarden-cli`, `python-pipx`, `reflector`, `opencode`, `claude-code`, `zsh-autosuggestions`, `zsh-syntax-highlighting`; DevOps: `github-cli`, `pre-commit`, `gitleaks`, `opentofu`, `ansible`
 
 ### GUI (`$gui`)
 KDE Plasma desktop: `plasma-meta` (pulls plasma-login-manager, plasma-nm, print-manager, breeze-gtk, kde-gtk-config, kwallet-pam, spectacle...), `dolphin`, `kmail`, `remmina`, `discord`, `brave-bin`, `ghostty`, `ark`, `okular`, `cups`, `mpv`, `kio-admin`, `kdeconnect`
@@ -139,6 +139,7 @@ AFTER (alphabetical)
   70-prune-packages.sh     (every)    # uninstall packages removed from the list
   80-mirror-optimize.sh    (every*)   # reflector + BlackArch mirror optimizer
   90-oci-cli.sh            (every)    # official Oracle installer + zsh completion cache (AUR pkg broken on py3.14)
+  95-git-hooks.sh          (every)    # pre-commit hooks of this repo (gitleaks + tools/check.sh)
 ```
 
 `onchange` scripts re-run automatically when their content changes, so editing
@@ -199,6 +200,17 @@ sudo blackarch-mirror-optimize
 | `.chezmoiscripts/*.sh(.tmpl)` | Lifecycle scripts |
 | `.chezmoihooks/install-password-manager.sh` | pre-read-source-state hook |
 | `private_dot_config/zsh/env/pentest-docker.zsh` | Pentest container aliases |
+
+## Checks (local, pre-commit, CI)
+
+```bash
+tools/check.sh             # render every script for all-flags / no-flags profiles, bash -n, shellcheck, package count
+pre-commit run --all-files # same + gitleaks on staged changes
+```
+
+The pre-commit hook is installed by `95-git-hooks` (needs `pre-commit` and
+`gitleaks`, both in the base packages). GitHub Actions runs `tools/check.sh` and
+gitleaks over the full history on every push.
 
 ## Troubleshooting
 

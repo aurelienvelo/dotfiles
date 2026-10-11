@@ -1,0 +1,38 @@
+# Vérifications à chaque push / PR (mêmes contrôles qu'en local : tools/check.sh)
+name: check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    name: rendu tous profils + shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installer chezmoi
+        run: |
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Outils
+        run: |
+          chezmoi --version
+          shellcheck --version | head -2
+          python3 -c 'import yaml'
+      - name: tools/check.sh
+        run: tools/check.sh
+
+  gitleaks:
+    name: secrets (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -18,7 +18,7 @@ chezmoi execute-template < home/path/file.tmpl     # render one template
 chezmoi execute-template '{{ template "pkg-list.sh" . }}' | bash -c 'source /dev/stdin && desired_packages'
 ```
 
-There is no test suite. Validation means rendering templates and running `bash -n` / `shellcheck` on the output.
+`tools/check.sh` is the test suite (about 1.5 s; it needs neither the deployed config nor Bitwarden). It renders every script for two synthetic profiles, all flags true and all flags false, runs `bash -n` + `shellcheck -S warning` on them, and checks that the all-flags package list matches `packages.yaml` plus the hardcoded entries. It also fails if a flag in `chezmoi.toml.tmpl` is missing from its `FLAGS` array, so add new flags there. The same script runs as a pre-commit hook (`.pre-commit-config.yaml`, together with gitleaks on staged changes; installed by `run_after_95-git-hooks`) and in CI (`.github/workflows/check.yml`, plus gitleaks over the full history). Files outside `home/` (`tools/`, `.github/`, `.pre-commit-config.yaml`) are never deployed.
 
 ## Architecture
 
@@ -47,7 +47,7 @@ There is no test suite. Validation means rendering templates and running `bash -
 
 ## Validation before pushing
 
-The dev machine (`vm-dev`) has most flags set to false, so branches gated by `vpn`, `wifi`, `container`, `virtualization`, `has_nvidia` and `has_battery` never render there. A missing `vpn.pacman` key once shipped this way and broke apply on other devices. After you edit `packages.yaml`, `pkg-list.sh` or any script that uses them:
+The dev machine (`vm-dev`) has most flags set to false, so branches gated by `vpn`, `wifi`, `container`, `virtualization`, `has_nvidia` and `has_battery` never render there. A missing `vpn.pacman` key once shipped this way and broke apply on other devices. After you edit `packages.yaml`, `pkg-list.sh` or any script that uses them, run `tools/check.sh`: it automates steps 1–3 below. Steps 4–5 are still manual.
 
 1. Copy the deployed `~/.config/chezmoi/chezmoi.toml` to `/tmp/allflags.toml` and set every flag to true. Append any flag the deployed config doesn't have yet (a flag added since the last apply), then render:
    `chezmoi --config /tmp/allflags.toml execute-template '{{ template "pkg-list.sh" . }}' | bash -c 'source /dev/stdin && desired_packages' | wc -l`

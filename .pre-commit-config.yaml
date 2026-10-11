@@ -1,0 +1,19 @@
+# Hooks git locaux (installés par home/.chezmoiscripts/run_after_95-git-hooks).
+# Hors de home/ (.chezmoiroot) : jamais déployé.
+# Lancer à la main : pre-commit run --all-files
+repos:
+  - repo: local
+    hooks:
+      # Secrets dans les changements indexés (paquet gitleaks)
+      - id: gitleaks
+        name: gitleaks (secrets)
+        entry: gitleaks git --pre-commit --staged --redact --verbose --no-banner
+        language: system
+        pass_filenames: false
+      # Rendu tous profils + shellcheck + comptage des paquets (~1,5 s)
+      - id: check
+        name: tools/check.sh
+        entry: tools/check.sh
+        language: system
+        pass_filenames: false
+        files: ^(home/|tools/)
