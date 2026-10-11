@@ -7,17 +7,8 @@ set -euo pipefail
 #  - script /usr/local/bin/pacman-clean
 #  - active aussi paccache.timer fourni par pacman-contrib (trim du cache pacman)
 
-if systemctl --version >/dev/null 2>&1 && systemctl is-enabled pacman-clean.timer >/dev/null 2>&1; then
-    exit 0
-fi
-
-# Sans sudo non-interactif, on ne tente pas (le terminal interactif fera le prompt)
-if ! sudo -n true 2>/dev/null; then
-    if [[ ! -t 0 ]]; then
-        echo "pacman-clean : sudo requis pour déployer la config (lancer 'chezmoi apply' dans un terminal)."
-        exit 0
-    fi
-fi
+STAMP_WANT="{{ include .chezmoi.sourceFile | sha256sum }}"
+{{ template "sudo-stamp.sh" "pacman-clean" }}
 
 sudo bash -s <<'SR'
 set -euo pipefail
@@ -82,5 +73,6 @@ if systemctl list-unit-files paccache.timer >/dev/null 2>&1; then
 fi
 SR
 
+stamp_done
 echo "pacman-clean : timer hebdomadaire déployé (orphelins + cache pacman)."
 {{ end -}}

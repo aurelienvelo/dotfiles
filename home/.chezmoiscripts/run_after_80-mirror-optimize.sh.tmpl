@@ -14,13 +14,8 @@ if ! command -v reflector >/dev/null 2>&1; then
     exit 0
 fi
 
-# Sans sudo non-interactif, on n'écrit pas dans /etc (même garde que pacman-cleanup)
-if ! sudo -n true 2>/dev/null; then
-    if [[ ! -t 0 ]]; then
-        echo "[mirror-optimize] sudo requis pour déployer (lancer 'chezmoi apply' dans un terminal)."
-        exit 0
-    fi
-fi
+STAMP_WANT="{{ include .chezmoi.sourceFile | sha256sum }}"
+{{ template "sudo-stamp.sh" "mirror-optimize" }}
 
 sudo bash -s <<'SR'
 set -euo pipefail
@@ -153,5 +148,6 @@ sudo reflector @/etc/xdg/reflector/reflector.conf \
     || echo "[mirror-optimize] reflector a échoué (réseau ?), le timer réessaiera"
 sudo /usr/local/bin/blackarch-mirror-optimize || true
 
+stamp_done
 echo "[mirror-optimize] timers activés : reflector (quotidien), blackarch-mirror-optimize (hebdo)"
 {{ end -}}

@@ -1,4 +1,13 @@
 ssh_pubkeys_registry
+
+# Lockfile écrit par lazy.nvim (:Lazy update). Ignoré, il n'est ni écrasé à
+# chaque apply ni supprimé par exact_nvim.
+.config/nvim/lazy-lock.json
+
 {{ if not (dig "pentest" false .) -}}
 .config/zsh/env/pentest-docker.zsh
+{{ end -}}
+{{ if not (dig "gui" false .) -}}
+.local/share/wallpapers
+.config/ghostty
 {{ end -}}

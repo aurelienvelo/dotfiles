@@ -14,7 +14,7 @@ return {
         rust = { "rustfmt" },
         ["*"] = { "trim_whitespace" },
       },
-      format_on_save = { timeout_ms = 1500, lsp_fallback = true },
+      format_on_save = { timeout_ms = 1500, lsp_format = "fallback" },
     },
   },
 

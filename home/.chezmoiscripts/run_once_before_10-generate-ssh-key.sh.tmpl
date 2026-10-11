@@ -22,6 +22,8 @@ cp "$KEY_PATH.pub" "$REGISTRY/$HOSTNAME.pub"
 cd "$SOURCE_DIR"
 if [ -n "$(git status --porcelain -- "ssh_pubkeys_registry/$HOSTNAME.pub")" ]; then
     git add "ssh_pubkeys_registry/$HOSTNAME.pub"
-    git commit -m "ssh: add pubkey for $HOSTNAME"
+    # Pathspec explicite : sans lui, le commit embarquerait aussi tout ce
+    # que l'utilisateur avait déjà indexé dans le dépôt.
+    git commit -m "ssh: add pubkey for $HOSTNAME" -- "ssh_pubkeys_registry/$HOSTNAME.pub"
     git push || echo "Push manuel nécessaire (pas de réseau/remote configuré ?)"
 fi

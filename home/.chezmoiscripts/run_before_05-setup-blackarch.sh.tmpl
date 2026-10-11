@@ -1,0 +1,28 @@
+{{ if and (eq .chezmoi.os "linux") (dig "pentest" false .) -}}
+#!/bin/bash
+set -euo pipefail
+
+# Dépôt BlackArch. Script run_ (chaque apply) et non run_once_ : un run_once_
+# qui sort en 0 faute de TTY est enregistré comme exécuté et ne serait jamais
+# retenté. Le test ci-dessous rend le script quasi gratuit une fois installé.
+#
+# strap.sh ajoute « [blackarch] » + « Include = /etc/pacman.d/blackarch-mirrorlist »
+# dans pacman.conf (l'URL blackarch.org n'y figure pas).
+if grep -q '^\[blackarch\]' /etc/pacman.conf; then
+    exit 0
+fi
+
+if [ ! -t 0 ]; then
+    echo "[blackarch] Mode non interactif : installation reportée au prochain 'chezmoi apply' dans un terminal."
+    echo "[blackarch] Ou manuellement : curl -fsSL https://blackarch.org/strap.sh | sudo bash"
+    exit 0
+fi
+
+echo "[blackarch] Installation du dépôt BlackArch..."
+tmp="$(mktemp)"
+trap 'rm -f "$tmp"' EXIT
+# Téléchargé puis exécuté (pas de curl | bash) : un transfert interrompu ne
+# lance pas un script tronqué.
+curl -fsSL https://blackarch.org/strap.sh -o "$tmp"
+sudo bash "$tmp"
+{{ end -}}

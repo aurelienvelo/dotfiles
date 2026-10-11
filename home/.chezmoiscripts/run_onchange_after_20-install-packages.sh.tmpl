@@ -5,6 +5,18 @@ set -euo pipefail
 {{ template "pkg-list.sh" . }}
 mapfile -t packages < <(desired_packages)
 
+# Renommages (packages.arch.replaces) : l'ancien paquet entre en conflit avec
+# son remplaçant et `paru --noconfirm` répond « non » au conflit, ce qui fait
+# échouer tout le script. On retire donc l'ancien d'abord (-Rdd : le
+# remplaçant satisfera les dépendances juste après). `pacman -Qq` résout les
+# « provides », d'où la comparaison stricte avec le nom renvoyé.
+{{ range $old, $new := dig "replaces" (dict) .packages.arch -}}
+if [ "$(pacman -Qq {{ $old | quote }} 2>/dev/null)" = {{ $old | quote }} ] \
+    && [ "$(pacman -Qq {{ $new | quote }} 2>/dev/null)" != {{ $new | quote }} ]; then
+    echo "Remplacement : {{ $old }} → {{ $new }}"
+    paru -Rdd --noconfirm {{ $old | quote }}
+fi
+{{ end }}
 if [ ${#packages[@]} -gt 0 ]; then
     # -Syu obligatoire :
     #  - sans -y : bases synchrones périmées → 404 sur les paquets

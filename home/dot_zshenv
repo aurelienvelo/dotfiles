@@ -4,3 +4,9 @@ export XDG_STATE_HOME="${HOME}/.local/state"
 export XDG_CACHE_HOME="${HOME}/.cache"
 
 export ZDOTDIR="${XDG_CONFIG_HOME}/zsh"
+
+# Éditeur par défaut (git, sudoedit, Ctrl-X Ctrl-E, crontab...). Attention :
+# un EDITOR contenant « vi » bascule zsh en keymap vi, d'où le `bindkey -e`
+# explicite dans 60-keybindings.zsh.
+export EDITOR=nvim
+export VISUAL=nvim

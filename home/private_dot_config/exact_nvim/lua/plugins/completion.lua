@@ -2,7 +2,7 @@ return {
   -- Complétion moderne et rapide
   {
     "saghen/blink.cmp",
-    version = "v0.*",
+    version = "1.*",
     event = { "InsertEnter", "CmdlineEnter" },
     dependencies = {
       "rafamadriz/friendly-snippets",

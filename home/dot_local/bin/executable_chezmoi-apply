@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -euo pipefail
 
 # Applique la configuration chezmoi en s'assurant que Bitwarden est déverrouillé.
@@ -18,16 +18,24 @@ case "$status" in
         ;;
     locked)
         echo "Bitwarden est verrouillé. Déverrouillage (mot de passe maître)..."
-        export BW_SESSION="$(bw unlock --raw)"
+        # Affectation séparée de l'export : `export X="$(cmd)"` masque l'échec
+        # de cmd (mauvais mot de passe) et continuerait avec une session vide.
+        BW_SESSION="$(bw unlock --raw)"
+        export BW_SESSION
         ;;
     unauthenticated)
         echo "Bitwarden non connecté. Connexion (email + mot de passe maître)..."
-        export BW_SESSION="$(bw login --raw)"
+        BW_SESSION="$(bw login --raw)"
+        export BW_SESSION
         ;;
     *)
         echo "ERREUR: statut Bitwarden inattendu: '$status'"
         exit 1
         ;;
 esac
+
+# chezmoi lit le cache local du vault : sans sync, une entrée modifiée sur un
+# autre appareil serait rendue avec son ancienne valeur.
+bw sync --quiet || echo "AVERTISSEMENT: bw sync a échoué, cache local utilisé."
 
 exec chezmoi apply "$@"

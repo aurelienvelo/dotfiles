@@ -45,6 +45,7 @@ desired_packages() {
     'nvidia-settings'
     'egl-wayland'
     'libva-nvidia-driver'
+    'opencl-nvidia'
   )
   pkgs+=("${nv_pkgs[@]}")
   {{ end }}

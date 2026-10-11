@@ -53,20 +53,18 @@ packages:
         - 'opencode'
         - 'python-pipx'
         - 'reflector'
-      aur: []
+      aur:
+        - 'claude-code'
     gui:
       pacman:
+        # plasma-meta tire déjà : plasma-login-manager, plasma-nm, kdeplasma-addons,
+        # print-manager, xdg-desktop-portal-kde, kde-cli-tools, breeze-gtk,
+        # kde-gtk-config, kwallet-pam, ksshaskpass, spectacle
         - 'plasma-meta'
-        - 'plasma-nm'
-        - 'kdeplasma-addons'
-        - 'print-manager'
-        - 'xdg-desktop-portal-kde'
-        - 'kde-cli-tools'
         - 'dolphin'
         - 'kmail'
         - 'remmina'
         - 'discord'
-        - 'brave-bin'
         - 'ghostty'
         - 'ark'
         - 'okular'
@@ -78,11 +76,15 @@ packages:
         - 'noto-fonts-emoji'
         - 'cups'
         - 'mpv'
-      aur: []
+        - 'kio-admin'
+        - 'kdeconnect'
+      aur:
+        - 'brave-bin'
     vpn:
       pacman: []
       aur:
         - 'netbird-bin'
+        - 'netbird-ui-bin'
     pentest:
       osint:
         blackarch:
@@ -90,6 +92,11 @@ packages:
           - 'subfinder'
           - 'holehe'
           - 'sherlock'
+          - 'theharvester'
+          - 'dnsrecon'
+          - 'recon-ng'
+          - 'spiderfoot'
+          - 'dnsx'
         aur: []
       network:
         blackarch:
@@ -108,11 +115,15 @@ packages:
           - 'smbclient'
           - 'testssl.sh'
           - 'ssh-audit'
+          - 'sslyze'
+          - 'naabu'
+          - 'mitmproxy'
         aur: []
       vuln_scanners:
         blackarch:
           - 'nikto'
           - 'nuclei'
+          - 'nuclei-templates'
         aur: []
       wordlists:
         blackarch:
@@ -136,6 +147,7 @@ packages:
           - 'uncover'
           - 'proxify'
           - 'katana-pd'
+          - 'gowitness'
         aur: []
       ad_windows:
         blackarch:
@@ -151,6 +163,10 @@ packages:
           - 'bloodyad'
           - 'kerbrute'
           - 'pkinittools'
+          - 'certipy'
+          - 'python-ldapdomaindump'
+          - 'mitm6'
+          - 'krbrelayx'
         aur: []
       wifi:
         blackarch:
@@ -165,6 +181,8 @@ packages:
         blackarch:
           - 'trivy'
           - 'grype'
+          - 'syft'
+          - 'dive'
         aur: []
       exploit_post:
         blackarch:
@@ -173,9 +191,9 @@ packages:
           - 'chisel'
           - 'ligolo-ng'
           - 'pspy'
-        aur:
-          - 'peass-ng'
-          - 'exploitdb-git'
+          - 'peass'
+          - 'exploitdb'
+        aur: []
       cracking:
         blackarch:
           - 'hashcat'
@@ -185,6 +203,7 @@ packages:
           - 'crunch'
           - 'patator'
           - 'medusa'
+          - 'hashcat-utils'
         aur: []
       re:
         blackarch:
@@ -194,6 +213,7 @@ packages:
           - 'ropper'
           - 'one_gadget'
           - 'python-pwntools'
+          - 'pwndbg'
         aur: []
       reporting:
         blackarch: []
@@ -210,10 +230,14 @@ packages:
         - 'qemu-desktop'
         - 'virt-manager'
         - 'dnsmasq'
-        - 'bridge-utils'
-        - 'ebtables'
-        - 'vde2'
+        - 'swtpm'
       aur: []
+    # Renommages : ancien paquet installé -> remplaçant. 20-install-packages
+    # désinstalle l'ancien (-Rdd) avant d'installer le nouveau, sinon le
+    # conflit fait échouer `paru --noconfirm`.
+    replaces:
+      exploitdb-git: 'exploitdb'
+      peass-ng: 'peass'
   darwin:
     brews:
       - 'git'

@@ -1,0 +1,66 @@
+{{ if and (eq .chezmoi.os "linux") (dig "nfs_mount" false .) -}}
+#!/bin/bash
+set -euo pipefail
+
+# Partages NFS montés à la demande (unités .automount) :
+#  - rien au démarrage : un laptop hors LAN ne bloque plus le boot en
+#    attendant le serveur (l'ancienne unité .mount était WantedBy=multi-user)
+#  - montage au premier accès à /nfs/<partage>, démontage après 10 min d'inactivité
+# Options : `intr` est ignoré depuis le noyau 2.6.25 ; `x-systemd.automount`
+# n'a de sens que dans fstab, pas dans une unité .mount.
+# `soft` : un serveur absent fait échouer les E/S (EIO) au lieu de figer les
+# processus. Contrepartie : une écriture interrompue peut être perdue.
+
+STAMP_WANT="{{ include .chezmoi.sourceFile | sha256sum }}-{{ .nfs_server_ip }}"
+{{ template "sudo-stamp.sh" "nfs" }}
+
+shares=(media work)
+
+sudo mkdir -p /nfs
+for share in "${shares[@]}"; do
+    unit="nfs-${share}"
+    [ -d "/nfs/$share" ] || sudo mkdir -p "/nfs/$share"
+
+    sudo tee "/etc/systemd/system/${unit}.mount" >/dev/null <<EOF
+[Unit]
+Description=Montage NFS ${share}
+After=network-online.target
+Wants=network-online.target
+
+[Mount]
+What={{ .nfs_server_ip }}:/${share}
+Where=/nfs/${share}
+Type=nfs
+Options=rw,soft,noatime,timeo=14,retrans=2,_netdev
+EOF
+
+    sudo tee "/etc/systemd/system/${unit}.automount" >/dev/null <<EOF
+[Unit]
+Description=Automontage NFS ${share}
+
+[Automount]
+Where=/nfs/${share}
+TimeoutIdleSec=10min
+
+[Install]
+WantedBy=remote-fs.target
+EOF
+done
+
+sudo systemctl daemon-reload
+for share in "${shares[@]}"; do
+    unit="nfs-${share}"
+    # Migration : l'ancienne unité .mount était activée directement
+    if systemctl is-enabled --quiet "${unit}.mount" 2>/dev/null; then
+        sudo systemctl disable "${unit}.mount"
+    fi
+    sudo systemctl enable "${unit}.automount"
+    # Démarrage non bloquant : si le partage est déjà monté, l'automount
+    # prendra le relais au prochain démontage.
+    sudo systemctl start "${unit}.automount" 2>/dev/null \
+        || echo "[nfs] ${unit}.automount actif au prochain démarrage (point de montage occupé)"
+done
+
+stamp_done
+echo "[nfs] automount actif : ${shares[*]/#//nfs/}"
+{{ end -}}

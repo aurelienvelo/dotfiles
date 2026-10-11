@@ -9,8 +9,9 @@ HISTSIZE=100000
 SAVEHIST=100000
 
 # Sauvegarde
+# SHARE_HISTORY écrit déjà chaque commande au fil de l'eau : la doc zsh
+# déconseille de le combiner avec INC_APPEND_HISTORY.
 setopt APPEND_HISTORY
-setopt INC_APPEND_HISTORY
 setopt SHARE_HISTORY
 
 # Nettoyage

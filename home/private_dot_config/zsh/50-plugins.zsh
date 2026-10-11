@@ -12,11 +12,16 @@ if [[ -f /usr/share/fzf/completion.zsh ]]; then
     source /usr/share/fzf/completion.zsh
 fi
 
-# Tmux
-if command -v tmux >/dev/null &&
-  [ -z "$TMUX" ] && [ -n "$PS1" ]; then
-    ~/.local/bin/tmux-bootstrap
-    exec tmux
+# Tmux automatique, sauf :
+#  - session SSH (on ne veut pas imbriquer avec un tmux local ou distant)
+#  - terminaux embarqués (Dolphin/Kate via KONSOLE_DBUS_SESSION, VS Code,
+#    Neovim :terminal)
+# `tmux` sans `exec` si le serveur ne démarre pas : un tmux cassé ne doit
+# pas fermer le terminal instantanément.
+if (( ${+commands[tmux]} )) && [[ -o interactive && -z $TMUX && -z $SSH_CONNECTION \
+      && -z $KONSOLE_DBUS_SESSION && $TERM_PROGRAM != vscode && -z $NVIM ]]; then
+    ~/.local/bin/tmux-bootstrap || true
+    tmux new-session && exit
 fi
 
 # mise

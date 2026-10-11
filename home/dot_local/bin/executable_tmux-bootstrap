@@ -1,24 +1,27 @@
-#!/bin/sh
+#!/bin/bash
 set -euo pipefail
 
 TPM="$HOME/.config/tmux/plugins/tpm"
 
 # Installer TPM si nécessaire
 if [ ! -d "$TPM" ]; then
-    git clone https://github.com/tmux-plugins/tpm "$TPM"
+    git clone -q https://github.com/tmux-plugins/tpm "$TPM"
 fi
 
 # Installer les plugins une seule fois
 STAMP="$HOME/.local/state/tmux/plugins-installed"
 
 if [ ! -f "$STAMP" ]; then
-    tmux start-server
+    # Serveur tmux jetable sur un socket isolé (TMUX_TMPDIR hérité par les
+    # appels tmux de TPM) : le kill-server final ne touche pas aux sessions
+    # existantes de l'utilisateur.
+    TMUX_TMPDIR="$(mktemp -d)"
+    export TMUX_TMPDIR
+    unset TMUX
+    trap 'tmux kill-server 2>/dev/null || true; rm -rf "$TMUX_TMPDIR"' EXIT
 
     tmux new-session -d -s bootstrap
-
     "$TPM/bin/install_plugins"
-
-    tmux kill-server
 
     mkdir -p "$(dirname "$STAMP")"
     touch "$STAMP"

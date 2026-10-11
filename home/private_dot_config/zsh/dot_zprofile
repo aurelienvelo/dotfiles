@@ -1,3 +1,11 @@
+# Shells de connexion : session Plasma (plasmalogin lance `zsh -l`) et chaque
+# pane tmux (tmux démarre des shells de connexion). Sans `typeset -U`, chaque
+# niveau d'imbrication rajouterait les mêmes entrées au PATH.
+typeset -U path PATH
+
+# Binaires utilisateur : chezmoi-apply, tmux-bootstrap, hadolint...
+path=("$HOME/.local/bin" $path)
+
 for file in ~/.config/zsh/env/*.zsh; do
     [[ -r $file ]] && source "$file"
 done

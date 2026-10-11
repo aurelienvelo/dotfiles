@@ -1,0 +1,69 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/bin/bash
+set -euo pipefail
+
+# Services systemd et groupes attendus selon le profil. Convergent : l'état
+# est vérifié sans privilège et sudo n'est demandé que s'il manque quelque
+# chose. Tourne après 20-install-packages (les unités existent alors).
+
+actions=()   # commandes root à exécuter
+notes=()     # informations pour l'utilisateur
+
+unit_exists() { [ -n "$(systemctl list-unit-files --no-legend "$1" 2>/dev/null)" ]; }
+
+want_enabled() { # want_enabled UNITÉ : activer + démarrer si l'unité existe
+    unit_exists "$1" || return 0
+    systemctl is-enabled --quiet "$1" 2>/dev/null || actions+=("systemctl enable --now $1")
+}
+
+want_group() { # want_group GROUPE : ajouter l'utilisateur si le groupe existe
+    getent group "$1" >/dev/null || return 0
+    id -nG "$USER" | tr ' ' '\n' | grep -qx "$1" && return 0
+    actions+=("usermod -aG $1 $USER")
+    notes+=("groupe $1 ajouté : effectif à la prochaine connexion")
+}
+
+{{ if (dig "gui" false .) -}}
+# Impression : cups est installé mais inerte sans son socket
+want_enabled cups.socket
+want_enabled bluetooth.service
+# Gestionnaire de connexion, seulement si aucun n'est déjà configuré
+# (activer un second display-manager échouerait)
+if unit_exists plasmalogin.service && [ ! -e /etc/systemd/system/display-manager.service ]; then
+    actions+=("systemctl enable plasmalogin.service")
+fi
+{{ end -}}
+
+{{ if (dig "pentest" false .) -}}
+# Capture réseau sans root (dumpcap est setcap pour le groupe wireshark)
+want_group wireshark
+{{ end -}}
+
+{{ if (dig "virtualization" false .) -}}
+want_enabled libvirtd.socket
+want_group libvirt
+{{ end -}}
+
+{{ if (dig "vpn" false .) -}}
+# netbird-bin ne fournit que netbird@.service ; `netbird service install` crée netbird.service
+if ! systemctl is-enabled --quiet netbird.service 2>/dev/null; then
+    notes+=("NetBird non activé : sudo netbird service install && sudo netbird service start && netbird up")
+fi
+{{ end -}}
+
+if [ ${#actions[@]} -gt 0 ]; then
+    if ! sudo -n true 2>/dev/null && [ ! -t 0 ]; then
+        echo "[services] sudo requis pour : ${actions[*]} (reporté au prochain apply en terminal)"
+        exit 0
+    fi
+    for cmd in "${actions[@]}"; do
+        echo "[services] $cmd"
+        # shellcheck disable=SC2086 # découpage voulu : commandes simples sans espaces dans les arguments
+        sudo $cmd
+    done
+fi
+
+for n in "${notes[@]}"; do
+    echo "[services] $n"
+done
+{{ end -}}

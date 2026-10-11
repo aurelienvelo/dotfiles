@@ -1,3 +1,6 @@
+# Keymap emacs explicite : EDITOR=nvim ferait sinon choisir le keymap vi à zsh
+bindkey -e
+
 # Recherche inverse dans l'historique
 bindkey '^R' fzf-history-widget
 

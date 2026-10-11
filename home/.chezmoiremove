@@ -6,3 +6,5 @@
 .config/zsh/plugins.zsh
 .config/zsh/keybindings.zsh
 .config/zsh/prompt.zsh
+# Dump de complétion déplacé vers ~/.cache/zsh/zcompdump
+.config/zsh/.zcompdump*

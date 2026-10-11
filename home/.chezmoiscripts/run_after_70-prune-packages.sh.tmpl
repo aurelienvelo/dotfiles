@@ -38,8 +38,14 @@ fi
 
 # Conserve les paquets encore requis par un paquet installé
 # (ex: aircrack-ng exigé par katana-framework même sur machine sans WiFi)
+# Ignore aussi ce qui n'est plus installé sous ce nom exact : déjà désinstallé,
+# remplacé (packages.arch.replaces) ou nom virtuel résolu vers un « provider »
+# (ex: ebtables → iptables). `paru -Rns` d'un nom absent ferait échouer l'apply.
 filtered=()
 for pkg in "${to_remove[@]}"; do
+    if [[ "$(pacman -Qq "$pkg" 2>/dev/null)" != "$pkg" ]]; then
+        continue
+    fi
     required_by="$(LC_ALL=C pacman -Qi "$pkg" 2>/dev/null | awk -F': ' '/^Required By/{print $2}')"
     if [[ -n "$required_by" && "$required_by" != "None" ]]; then
         echo "Conservé (requis par : $required_by) : $pkg"
