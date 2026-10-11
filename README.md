@@ -6,8 +6,10 @@ Automated dotfiles and package management for Arch Linux workstations with integ
 
 - **Multi-device profiles**: laptop, desktop, vm-dev, server
 - **Category-based packages**: base, gui, vpn, pentest, container, virtualization
-- **BlackArch + official repos**: 78 pentest packages (BlackArch, core/extra, AUR)
-- **External tools**: pipx and GitHub binaries for the few tools in no repo
+- **BlackArch + official repos**: 96 pentest packages (BlackArch, core/extra, AUR)
+- **External tools**: GitHub binaries for the few tools in no repo
+- **KDE Plasma appearance**: same dark theme, lock screen and login screen on every GUI device
+- **System services & groups**: cups, bluetooth, libvirt, wireshark... enabled per profile
 - **Automated scripts**: explicit before/after phases with numbered execution order
 
 ## Quick Start
@@ -55,39 +57,41 @@ toolset (no radio in a VM).
 ## Package Categories
 
 ### Base (All Devices)
-Essential CLI tools: `git`, `zsh`, `neovim`, `mise`, `direnv`, `uv`, `kubectl`, `helm`, `k9s`, `sops`, `age`, `ripgrep`, `fd`, `bat`, `fzf`, `btop`, `eza`, `yq`, `jq`, `bitwarden-cli`, `python-pipx`, `reflector`, `opencode`
+Essential CLI tools: `git`, `zsh`, `neovim`, `mise`, `direnv`, `uv`, `kubectl`, `helm`, `k9s`, `sops`, `age`, `ripgrep`, `fd`, `bat`, `fzf`, `btop`, `eza`, `yq`, `jq`, `bitwarden-cli`, `python-pipx`, `reflector`, `opencode`, `claude-code`
 
 ### GUI (`$gui`)
-KDE Plasma desktop: `plasma-meta`, `dolphin`, `kmail`, `remmina`, `discord`, `brave-bin`, `ghostty`, `ark`, `okular`, `cups`, `mpv`
+KDE Plasma desktop: `plasma-meta` (pulls plasma-login-manager, plasma-nm, print-manager, breeze-gtk, kde-gtk-config, kwallet-pam, spectacle...), `dolphin`, `kmail`, `remmina`, `discord`, `brave-bin`, `ghostty`, `ark`, `okular`, `cups`, `mpv`, `kio-admin`, `kdeconnect`
 
 ### VPN (`$vpn`)
 NetBird mesh VPN: `netbird-bin`, `netbird-ui-bin`
 
-### Pentest (`$pentest`) — 78 packages
+### Pentest (`$pentest`) — 96 packages
 
 | Category | Tools |
 |----------|-------|
-| OSINT | amass, subfinder, holehe, sherlock |
-| Network | nmap, masscan, rustscan, wireshark-cli, wireshark-qt, netdiscover, tcpdump, arp-scan, socat, proxychains-ng, openbsd-netcat, nbtscan, smbclient, testssl.sh, ssh-audit |
-| Vuln Scanners | nikto, nuclei |
+| OSINT | amass, subfinder, holehe, sherlock, theharvester, dnsrecon, recon-ng, spiderfoot, dnsx |
+| Network | nmap, masscan, rustscan, wireshark-cli, wireshark-qt, netdiscover, tcpdump, arp-scan, socat, proxychains-ng, openbsd-netcat, nbtscan, smbclient, testssl.sh, ssh-audit, sslyze, naabu, mitmproxy |
+| Vuln Scanners | nikto, nuclei, nuclei-templates |
 | Wordlists | seclists |
-| Web | burpsuite, zaproxy, sqlmap, ffuf, feroxbuster, gobuster, wpscan, whatweb, wafw00f, arjun, dalfox, httpx, tlsx, uncover, proxify, katana-pd |
-| AD/Windows | netexec, responder, impacket, bloodhound-python, bloodhound-ce-python, enum4linux-ng, smbmap, evil-winrm, coercer, bloodyad, kerbrute, pkinittools |
+| Web | burpsuite, zaproxy, sqlmap, ffuf, feroxbuster, gobuster, wpscan, whatweb, wafw00f, arjun, dalfox, httpx, tlsx, uncover, proxify, katana-pd, gowitness |
+| AD/Windows | netexec, responder, impacket, bloodhound-python, bloodhound-ce-python, enum4linux-ng, smbmap, evil-winrm, coercer, bloodyad, kerbrute, pkinittools, certipy, python-ldapdomaindump, mitm6, krbrelayx |
 | WiFi (`$wifi`) | aircrack-ng, wifite, hcxdumptool, hcxtools, bettercap, kismet |
-| Container | trivy, grype |
-| Exploit/Post | metasploit, sliver, chisel, ligolo-ng, pspy, peass-ng, exploitdb-git |
-| Cracking | hashcat, john, hydra, cewl, crunch, patator, medusa |
-| RE | ghidra, radare2, gdb, ropper, one_gadget, python-pwntools |
+| Container | trivy, grype, syft, dive |
+| Exploit/Post | metasploit, sliver, chisel, ligolo-ng, pspy, peass, exploitdb |
+| Cracking | hashcat, john, hydra, cewl, crunch, patator, medusa, hashcat-utils (+ `opencl-nvidia` with `has_nvidia`) |
+| RE | ghidra, radare2, gdb, ropper, one_gadget, python-pwntools, pwndbg |
 
 Sources: BlackArch repository, Arch official repos (core/extra) and AUR —
 resolved transparently by `paru`. Package origins are documented in
-`.chezmoidata/packages.yaml`.
+`.chezmoidata/packages.yaml`. Renamed packages go in `packages.arch.replaces`
+(old → new): `20-install-packages` removes the old one first, otherwise the
+conflict makes `paru --noconfirm` fail.
 
 ### Container (`$container`)
 Podman stack: `podman`, `podman-compose`, `podman-docker`
 
 ### Virtualization (`$virtualization`)
-Full KVM/libvirt: `libvirt`, `qemu-desktop`, `virt-manager`, `dnsmasq`, `bridge-utils`
+Full KVM/libvirt: `libvirt`, `qemu-desktop`, `virt-manager`, `dnsmasq`, `swtpm` (TPM for Windows 11 guests)
 
 ## External Tools (Not in Any Repo)
 
@@ -96,16 +100,14 @@ script changes):
 
 | Tool | Method | Description |
 |------|--------|-------------|
-| ldapdomaindump | pipx | AD LDAP dumper |
-| syft | binary | SBOM generator |
-| hadolint | binary | Dockerfile linter |
-| dive | binary | Docker image layer inspector |
-| docker-bench-security | binary | CIS Docker benchmark |
+| hadolint | binary (`~/.local/bin`) | Dockerfile linter |
+| docker-bench-security | git clone + launcher | CIS Docker benchmark |
 
-Docker/Podman aliases (BloodHound CE GUI, SpiderFoot, Dradis, Faraday) live in
-the chezmoi-managed file `~/.config/zsh/env/pentest-docker.zsh` — they are only
-defined when a container runtime is available and never shadow an installed
-binary.
+Container helpers live in the chezmoi-managed file
+`~/.config/zsh/env/pentest-docker.zsh` and are only defined when docker or
+podman is available: `bloodhound-ce` (official SpecterOps compose: app +
+PostgreSQL + neo4j, UI on http://localhost:8080; `bloodhound-ce down` to stop)
+and `dradis` (bound to 127.0.0.1).
 
 ## Scripts Execution Order
 
@@ -115,27 +117,58 @@ explicit:
 
 ```
 BEFORE (alphabetical)
-  00-create-folders.sh                # base directories
-  01-bootstrap-paru.sh                # AUR helper
-  05-setup-blackarch.sh               # BlackArch repo (sudo + TTY)
-  10-generate-ssh-key.sh              # SSH key + pubkey registry
+  00-create-folders.sh     (once)     # base directories
+  01-bootstrap-paru.sh     (once)     # AUR helper
+  05-setup-blackarch.sh    (every)    # BlackArch repo, pentest profiles (sudo + TTY)
+  10-generate-ssh-key.sh   (once)     # SSH key + pubkey registry
 
 STATE
-  dotfiles, configs, ...
+  dotfiles, configs, wallpaper...
 
 AFTER (alphabetical)
-  20-install-packages.sh   (onchange) # paru -Syu -needed of the full list
-  30-pacman-cleanup.sh     (once)     # weekly systemd cleanup timer
-  40-pentest-extras.sh     (onchange) # pipx + GitHub binaries
-  50-deploy-ssh-keys.sh    (onchange) # propagate pubkeys over SSH
-  60-setup-nfs.sh          (once)     # NFS mount units
+  20-install-packages.sh   (onchange) # replaces migration + paru -Syu --needed of the full list
+  25-system-services.sh    (every)    # services + groups per profile (sudo only if something is missing)
+  30-pacman-cleanup.sh     (every*)   # weekly systemd cleanup timer
+  40-pentest-extras.sh     (onchange) # GitHub binaries
+  45-kde-theme.sh          (every)    # KDE appearance (kwriteconfig6, no sudo)
+  46-plasmalogin.sh        (every*)   # login screen: wallpaper + Plasma settings
+  50-deploy-ssh-keys.sh    (onchange) # propagate pubkeys over SSH (one connection per host)
+  60-setup-nfs.sh          (every*)   # NFS automount units
   70-prune-packages.sh     (every)    # uninstall packages removed from the list
-  80-mirror-optimize.sh    (onchange) # reflector + BlackArch mirror optimizer
+  80-mirror-optimize.sh    (every*)   # reflector + BlackArch mirror optimizer
   90-oci-cli.sh            (every)    # official Oracle installer + zsh completion cache (AUR pkg broken on py3.14)
 ```
 
 `onchange` scripts re-run automatically when their content changes, so editing
 the extras list or the package list is enough — no manual step.
+
+`every*` scripts write to `/etc` and use `.chezmoitemplates/sudo-stamp.sh`:
+they exit immediately when their stamp in `~/.local/state/chezmoi/stamps/`
+matches, and without sudo/TTY they postpone to the next interactive apply
+instead of being recorded as done (which is what `run_once_`/`run_onchange_`
+would do).
+
+## KDE Plasma Appearance
+
+Declared in `.chezmoidata/kde.yaml` (global theme, color scheme, icons, cursor,
+splash, wallpaper, lock timeout, extra keys). KDE rc files are **not** managed
+as chezmoi files: Plasma rewrites them constantly (full color palette, window
+states...), so a managed `kdeglobals` would wipe that state on every apply.
+Instead:
+
+- `45-kde-theme.sh` reads each key and only writes the ones that differ
+  (`kwriteconfig6`, `plasma-apply-lookandfeel/colorscheme/cursortheme`,
+  `plasma-apply-wallpaperimage` when a Plasma session is running). Automatic
+  light/dark switching is disabled so the theme stays dark.
+- `46-plasmalogin.sh` aligns Plasma Login Manager like the "Apply Plasma
+  Settings" button of the login screen KCM: wallpaper copied to
+  `/var/lib/plasmalogin/wallpapers`, `/etc/plasmalogin.conf` edited key by key
+  (other keys such as `PreselectedUser` are kept), and the user's
+  `kdeglobals`, `kcminputrc`, `kxkbrc`, `plasma-localerc`, `plasmarc`,
+  `fontconfig/fonts.conf` copied to `/var/lib/plasmalogin/.config`.
+
+To change the look on every device: edit `kde.yaml` (or drop a new wallpaper
+package in `dot_local/share/wallpapers/`) and `chezmoi apply`.
 
 ## Mirror Management (All Repos)
 
@@ -158,6 +191,8 @@ sudo blackarch-mirror-optimize
 |------|---------|
 | `.chezmoidata/packages.yaml` | Package definitions (origins: blackarch/aur/pacman) |
 | `.chezmoitemplates/pkg-list.sh` | Package list generator |
+| `.chezmoidata/kde.yaml` | KDE Plasma appearance |
+| `.chezmoitemplates/sudo-stamp.sh` | sudo/TTY guard + stamp for scripts writing to `/etc` |
 | `private_dot_config/chezmoi/chezmoi.toml.tmpl` | Device detection + hooks |
 | `.chezmoiscripts/*.sh(.tmpl)` | Lifecycle scripts |
 | `.chezmoihooks/install-password-manager.sh` | pre-read-source-state hook |
@@ -169,11 +204,6 @@ sudo blackarch-mirror-optimize
 ```bash
 sudo pacman -Sy archlinux-keyring blackarch-keyring
 sudo pacman-key --populate archlinux blackarch
-```
-
-### Missing pipx
-```bash
-paru -S python-pipx
 ```
 
 ### Docker Aliases Not Working
