@@ -37,3 +37,6 @@ map("n", "<leader>fd", "<cmd>FzfLua lsp_document_symbols<CR>", { desc = "Symbole
 map("n", "<leader>fc", "<cmd>FzfLua git_commits<CR>", { desc = "Commits git" })
 map("n", "<leader>lx", "<cmd>lua vim.diagnostic.setloclist()<CR>", { desc = "Diagnostics (liste locale)" })
 map("v", "<leader>fs", "<cmd>FzfLua grep_visual<CR>", { desc = "Grep sur la sélection" })
+
+-- Exécuter le fichier courant (terminal flottant ; débogage : <F5>)
+map("n", "<leader>r", function() require("config.runner").run() end, { desc = "Exécuter le fichier" })

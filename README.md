@@ -59,7 +59,7 @@ toolset (no radio in a VM).
 ## Package Categories
 
 ### Base (All Devices)
-Essential CLI tools: `git`, `zsh`, `neovim`, `mise`, `direnv`, `uv`, `kubectl`, `helm`, `k9s`, `sops`, `age`, `ripgrep`, `fd`, `bat`, `fzf`, `btop`, `eza`, `yq`, `jq`, `bitwarden-cli`, `python-pipx`, `reflector`, `opencode`, `claude-code`, `zsh-autosuggestions`, `zsh-syntax-highlighting`; DevOps: `github-cli`, `pre-commit`, `gitleaks`, `opentofu`, `ansible`
+Essential CLI tools: `git`, `zsh`, `neovim`, `mise`, `direnv`, `uv`, `kubectl`, `helm`, `k9s`, `sops`, `age`, `ripgrep`, `fd`, `bat`, `fzf`, `btop`, `eza`, `yq`, `jq`, `bitwarden-cli`, `python-pipx`, `reflector`, `claude-code`, `zsh-autosuggestions`, `zsh-syntax-highlighting`; DevOps: `github-cli`, `pre-commit`, `gitleaks`, `opentofu`, `ansible`
 
 ### GUI (`$gui`)
 KDE Plasma desktop: `plasma-meta` (pulls plasma-login-manager, plasma-nm, print-manager, breeze-gtk, kde-gtk-config, kwallet-pam, spectacle...), `dolphin`, `kmail`, `remmina`, `discord`, `brave-bin`, `ghostty`, `ark`, `okular`, `cups`, `mpv`, `kio-admin`, `kdeconnect`
@@ -152,6 +152,25 @@ they exit immediately when their stamp in `~/.local/state/chezmoi/stamps/`
 matches, and without sudo/TTY they postpone to the next interactive apply
 instead of being recorded as done (which is what `run_once_`/`run_onchange_`
 would do).
+
+## Neovim (IDE)
+
+Config sous `private_dot_config/exact_nvim` (lazy.nvim, LSP via l'API native
+0.11+). Points clés :
+
+- **Claude Code** (`coder/claudecode.nvim`, binaire `claude` de l'AUR) remplace
+  opencode : `<leader>ac` ouvre/ferme, `<leader>as` envoie la sélection, les
+  diffs proposés s'acceptent avec `<leader>aa`.
+- **Débogage** (`nvim-dap` + dap-ui) : `<F5>` démarre/continue, `<F10>/<F11>/<F12>`
+  pas à pas, `<leader>db` pose un point d'arrêt, `<leader>du` bascule l'interface.
+  Python via debugpy, JS/TS via js-debug-adapter (installés par mason). Le
+  debuggee Python tourne dans le venv du projet (direnv/uv).
+- **Exécuter** le fichier courant : `<leader>r` (Python via `uv run`, JS/TS, go,
+  rust, sh) dans un terminal flottant.
+- **LSP/format** : pyright + ruff (Python), ts_ls + eslint + prettierd (JS/TS),
+  terraform/ansible/json/toml (DevOps). Formatage à la sauvegarde (conform).
+- **Python** : rien à activer, direnv charge le venv uv ; pyright et debugpy le
+  détectent via `VIRTUAL_ENV`/`.venv`. Démarrer un projet : `uvinit` (alias zsh).
 
 ## Firewall (ufw)
 

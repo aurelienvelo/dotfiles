@@ -45,12 +45,23 @@ return {
       ensure_installed = {
         "bashls",
         "lua_ls",
+        -- Python : pyright (types) + ruff (lint/format)
         "pyright",
         "ruff",
+        -- JS/TS + web
         "ts_ls",
+        "eslint",
+        "jsonls",
+        "cssls",
+        "html",
+        -- DevOps
         "yamlls",
-        "marksman",
         "dockerls",
+        "docker_compose_language_service",
+        "terraformls",
+        "ansiblels",
+        "taplo", -- TOML (pyproject.toml, Cargo.toml...)
+        "marksman",
       },
     },
     config = function(_, opts)
@@ -69,6 +80,18 @@ return {
         },
       })
 
+      -- pyright respecte le venv du projet (direnv/uv) via VIRTUAL_ENV ;
+      -- en mode workspace, on pointe aussi explicitement .venv.
+      vim.lsp.config("pyright", {
+        settings = {
+          python = {
+            venvPath = ".",
+            venv = ".venv",
+            analysis = { typeCheckingMode = "basic", autoImportCompletions = true },
+          },
+        },
+      })
+
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("user_lsp_attach", { clear = true }),
         callback = on_attach,
@@ -76,5 +99,22 @@ return {
 
       require("mason-lspconfig").setup(opts)
     end,
+  },
+
+  -- Outils hors LSP installés automatiquement par mason : débogueurs
+  -- (debugpy, js-debug-adapter) et formateur prettier (js/ts/json/css).
+  -- stylua, shfmt, ruff, yamlfmt viennent des paquets pacman (dans le PATH).
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    dependencies = { "williamboman/mason.nvim" },
+    event = { "BufReadPre", "BufNewFile" },
+    opts = {
+      ensure_installed = {
+        "debugpy",
+        "js-debug-adapter",
+        "prettierd",
+      },
+      run_on_start = true,
+    },
   },
 }

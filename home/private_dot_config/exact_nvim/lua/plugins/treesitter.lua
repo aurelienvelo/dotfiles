@@ -10,8 +10,10 @@ return {
         "vimdoc",
         "python",
         "typescript",
+        "tsx",
         "javascript",
         "json",
+        "jsonc",
         "yaml",
         "toml",
         "go",
@@ -22,6 +24,12 @@ return {
         "diff",
         "gitcommit",
         "dockerfile",
+        -- web + devops
+        "html",
+        "css",
+        "hcl",
+        "terraform",
+        "ssh_config",
       }):wait(300000)
     end,
     config = function()

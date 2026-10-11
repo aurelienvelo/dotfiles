@@ -52,7 +52,6 @@ packages:
         - 'kubectx'
         - 'jq'
         - 'bitwarden-cli'
-        - 'opencode'
         - 'python-pipx'
         - 'reflector'
         # DevOps
