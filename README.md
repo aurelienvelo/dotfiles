@@ -6,7 +6,7 @@ Automated dotfiles and package management for Arch Linux workstations with integ
 
 - **Multi-device profiles**: laptop, desktop, vm-dev, server
 - **Category-based packages**: base, gui, vpn, pentest, container, virtualization
-- **BlackArch + official repos**: 96 pentest packages (BlackArch, core/extra, AUR)
+- **BlackArch + official repos**: 97 pentest packages (BlackArch, core/extra, AUR)
 - **External tools**: GitHub binaries for the few tools in no repo
 - **KDE Plasma appearance**: same dark theme, lock screen and login screen on every GUI device
 - **System services & groups**: cups, bluetooth, libvirt, wireshark... enabled per profile
@@ -51,13 +51,15 @@ Everything else (packages, external tools, aliases) is applied automatically.
 | **vm-dev** | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
 | **server** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
+Hardware flags: `has_nvidia` (desktop: driver + OpenCL), `has_intel_gpu` (laptop: VA-API + OpenCL), `has_battery` (laptop).
+
 Detection via hostname in `chezmoi.toml.tmpl`. The `wifi` flag gates the WiFi
 toolset (no radio in a VM).
 
 ## Package Categories
 
 ### Base (All Devices)
-Essential CLI tools: `git`, `zsh`, `neovim`, `mise`, `direnv`, `uv`, `kubectl`, `helm`, `k9s`, `sops`, `age`, `ripgrep`, `fd`, `bat`, `fzf`, `btop`, `eza`, `yq`, `jq`, `bitwarden-cli`, `python-pipx`, `reflector`, `opencode`, `claude-code`
+Essential CLI tools: `git`, `zsh`, `neovim`, `mise`, `direnv`, `uv`, `kubectl`, `helm`, `k9s`, `sops`, `age`, `ripgrep`, `fd`, `bat`, `fzf`, `btop`, `eza`, `yq`, `jq`, `bitwarden-cli`, `python-pipx`, `reflector`, `opencode`, `claude-code`, `zsh-autosuggestions`, `zsh-syntax-highlighting`; DevOps: `github-cli`, `pre-commit`, `opentofu`, `ansible`
 
 ### GUI (`$gui`)
 KDE Plasma desktop: `plasma-meta` (pulls plasma-login-manager, plasma-nm, print-manager, breeze-gtk, kde-gtk-config, kwallet-pam, spectacle...), `dolphin`, `kmail`, `remmina`, `discord`, `brave-bin`, `ghostty`, `ark`, `okular`, `cups`, `mpv`, `kio-admin`, `kdeconnect`
@@ -65,7 +67,7 @@ KDE Plasma desktop: `plasma-meta` (pulls plasma-login-manager, plasma-nm, print-
 ### VPN (`$vpn`)
 NetBird mesh VPN: `netbird-bin`, `netbird-ui-bin`
 
-### Pentest (`$pentest`) — 96 packages
+### Pentest (`$pentest`) — 97 packages
 
 | Category | Tools |
 |----------|-------|
@@ -73,12 +75,12 @@ NetBird mesh VPN: `netbird-bin`, `netbird-ui-bin`
 | Network | nmap, masscan, rustscan, wireshark-cli, wireshark-qt, netdiscover, tcpdump, arp-scan, socat, proxychains-ng, openbsd-netcat, nbtscan, smbclient, testssl.sh, ssh-audit, sslyze, naabu, mitmproxy |
 | Vuln Scanners | nikto, nuclei, nuclei-templates |
 | Wordlists | seclists |
-| Web | burpsuite, zaproxy, sqlmap, ffuf, feroxbuster, gobuster, wpscan, whatweb, wafw00f, arjun, dalfox, httpx, tlsx, uncover, proxify, katana-pd, gowitness |
+| Web | burpsuite, zaproxy, sqlmap, ffuf, feroxbuster, gobuster, wpscan, whatweb, wafw00f, arjun, dalfox, httpx, tlsx, uncover, proxify, katana-pd, gowitness, caido-desktop |
 | AD/Windows | netexec, responder, impacket, bloodhound-python, bloodhound-ce-python, enum4linux-ng, smbmap, evil-winrm, coercer, bloodyad, kerbrute, pkinittools, certipy, python-ldapdomaindump, mitm6, krbrelayx |
 | WiFi (`$wifi`) | aircrack-ng, wifite, hcxdumptool, hcxtools, bettercap, kismet |
 | Container | trivy, grype, syft, dive |
 | Exploit/Post | metasploit, sliver, chisel, ligolo-ng, pspy, peass, exploitdb |
-| Cracking | hashcat, john, hydra, cewl, crunch, patator, medusa, hashcat-utils (+ `opencl-nvidia` with `has_nvidia`) |
+| Cracking | hashcat, john, hydra, cewl, crunch, patator, medusa, hashcat-utils (+ OpenCL: `opencl-nvidia` with `has_nvidia`, `intel-compute-runtime` with `has_intel_gpu`) |
 | RE | ghidra, radare2, gdb, ropper, one_gadget, python-pwntools, pwndbg |
 
 Sources: BlackArch repository, Arch official repos (core/extra) and AUR —
