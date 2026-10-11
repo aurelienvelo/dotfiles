@@ -1,0 +1,46 @@
+{{ if and (eq .chezmoi.os "linux") (dig "gui" false .) -}}
+{{- $root := . -}}
+#!/bin/bash
+set -euo pipefail
+
+# Pare-feu ufw (données : .chezmoidata/firewall.yaml) : entrant refusé,
+# sortant autorisé, règles déclarées ajoutées, service actif.
+# La politique « routed » n'est pas touchée (libvirt gère ses propres règles NAT).
+
+if ! command -v ufw >/dev/null 2>&1; then
+    echo "[firewall] ufw absent, ignoré"
+    exit 0
+fi
+
+# Le tampon inclut l'état lisible sans root (activation, politique entrante,
+# nombre de règles) : ufw désactivé ou règle supprimée → reconvergence.
+fw_state() {
+    {
+        echo {{ include .chezmoi.sourceFile | sha256sum | quote }}
+        echo {{ .firewall | toJson | sha256sum | quote }}
+        grep -E '^ENABLED=' /etc/ufw/ufw.conf
+        grep -E '^DEFAULT_(INPUT|OUTPUT)_POLICY=' /etc/default/ufw
+        grep -c '^### tuple' /etc/ufw/user.rules || true
+        systemctl is-enabled ufw.service 2>/dev/null || true
+    } | sha256sum | cut -d' ' -f1
+}
+STAMP_WANT="$(fw_state)"
+{{ template "sudo-stamp.sh" "firewall" }}
+
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw logging {{ .firewall.logging | quote }}
+{{ range .firewall.rules -}}
+{{ if or (not .when) (dig .when false $root) -}}
+# {{ .name }} (ufw ignore une règle déjà présente)
+sudo ufw allow {{ .allow | quote }} comment {{ printf "chezmoi: %s" .name | quote }}
+{{ end -}}
+{{ end -}}
+sudo ufw --force enable
+systemctl is-enabled --quiet ufw.service || sudo systemctl enable --now ufw.service
+
+# Tampon recalculé sur l'état final (nouvelles règles comptées)
+STAMP_WANT="$(fw_state)"
+stamp_done
+echo "[firewall] ufw actif : entrant refusé sauf règles déclarées"
+{{ end -}}

@@ -86,6 +86,7 @@ packages:
         - 'mpv'
         - 'kio-admin'
         - 'kdeconnect'
+        - 'ufw'
       aur:
         - 'brave-bin'
     vpn:

@@ -1,0 +1,15 @@
+# Pare-feu ufw des postes de travail (profil gui), appliqué par
+# .chezmoiscripts/run_after_27-firewall.sh.tmpl. Pas sur le serveur : un
+# « deny incoming » y couperait SSH.
+#
+# Ajout seulement : une règle retirée d'ici reste active. La supprimer à la
+# main : sudo ufw status numbered && sudo ufw delete <N>
+firewall:
+  logging: 'low'
+  rules:
+    # `allow` = argument de `ufw allow` : profil applicatif
+    # (/etc/ufw/applications.d) ou spécification de port.
+    # `when` (optionnel) = flag requis.
+    - name: 'KDE Connect'
+      allow: 'KDEConnect'
+      when: 'gui'
