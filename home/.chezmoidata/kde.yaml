@@ -1,0 +1,33 @@
+# Apparence KDE Plasma commune à tous les appareils gui (bureau, écran de
+# verrouillage, écran de connexion plasmalogin). Appliquée par :
+#   .chezmoiscripts/run_after_45-kde-theme.sh.tmpl  (session utilisateur)
+#   .chezmoiscripts/run_after_46-plasmalogin.sh.tmpl (écran de connexion, sudo)
+# Les fichiers rc de KDE (kdeglobals, kwinrc...) ne sont PAS gérés comme
+# fichiers chezmoi : Plasma les réécrit en permanence (couleurs, états de
+# fenêtres...). On force seulement les clés listées ici, avec kwriteconfig6.
+kde:
+  # Thème global : couleurs, style, décorations, splash, look du verrouillage.
+  # Liste : plasma-apply-lookandfeel --list
+  lookandfeel: 'org.kde.breezedark.desktop'
+  colorscheme: 'BreezeDark'
+  icons: 'breeze-dark'
+  cursor: 'breeze_cursors'
+  cursor_size: 24
+  splash: 'org.kde.breeze.desktop'
+  # Paquet de fond d'écran dans ~/.local/share/wallpapers/<nom>
+  # (bureau + verrouillage + connexion)
+  wallpaper: 'Edna-RanchoCucamonga'
+  # Verrouillage automatique après N minutes d'inactivité
+  lock_timeout: 10
+  # Clés forcées en plus : fichier -> liste de [groupes..., clé, valeur]
+  settings:
+    kdeglobals:
+      - ['KDE', 'SingleClick', 'false']
+    kwinrc:
+      - ['TabBox', 'LayoutName', 'org.kde.breeze.desktop']
+    dolphinrc:
+      - ['MainWindow', 'MenuBar', 'Disabled']
+      - ['KFileDialog Settings', 'Places Icons Auto-resize', 'false']
+      - ['KFileDialog Settings', 'Places Icons Static Size', '22']
+    kiorc:
+      - ['Confirmations', 'ConfirmDelete', 'true']

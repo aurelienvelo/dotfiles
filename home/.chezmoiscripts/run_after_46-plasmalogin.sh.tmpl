@@ -1,0 +1,116 @@
+{{ if and (eq .chezmoi.os "linux") (dig "gui" false .) -}}
+{{- $kde := .kde -}}
+#!/bin/bash
+set -euo pipefail
+
+# Écran de connexion Plasma Login Manager : même fond, même thème sombre,
+# mêmes curseur/police/clavier que la session (données : .chezmoidata/kde.yaml).
+# Reproduit le bouton « Appliquer les paramètres Plasma » du module
+# Configuration du système > Écran de connexion :
+#  - /etc/plasmalogin.conf : fond d'écran du greeter (kwriteconfig6, ce qui
+#    conserve les autres clés comme PreselectedUser posées par le module)
+#  - /var/lib/plasmalogin/.config : copie des rc de l'utilisateur (couleurs,
+#    curseur, clavier, locale, polices) lus par le greeter
+# Tourne après 45-kde-theme, qui a déjà aligné la session.
+
+if ! command -v plasmalogin >/dev/null 2>&1 || ! getent passwd plasmalogin >/dev/null; then
+    echo "[plasmalogin] Plasma Login Manager absent, ignoré"
+    exit 0
+fi
+
+kread() {
+    local file=$1 args=()
+    shift
+    while [ $# -gt 1 ]; do args+=(--group "$1"); shift; done
+    kreadconfig6 --file "$file" "${args[@]}" --key "$1"
+}
+
+CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
+GREETER_HOME=/var/lib/plasmalogin
+WALL_NAME={{ $kde.wallpaper | quote }}
+WALL_SRC="$HOME/.local/share/wallpapers/$WALL_NAME"
+WALL_DEST="$GREETER_HOME/wallpapers/$WALL_NAME"
+# Fichiers synchronisés par le module KCM (relevé dans kcmplasmalogin_authhelper).
+# kwinoutputconfig.json (disposition des écrans) est volontairement exclu :
+# il change à chaque branchement de dock sur un laptop.
+SYNC_FILES=(kdeglobals kcminputrc kxkbrc plasma-localerc plasmarc fontconfig/fonts.conf)
+
+if [ ! -d "$WALL_SRC" ]; then
+    echo "[plasmalogin] fond d'écran introuvable : $WALL_SRC"
+    exit 1
+fi
+
+# Valeurs effectives de la session. Lues en cascade, car une partie vit dans
+# ~/.config/kdedefaults (écrit par le thème global), que le greeter ne lit
+# pas : on les réécrit en clair dans les copies.
+color_scheme="$(kread kdeglobals General ColorScheme)"
+icons="$(kread kdeglobals Icons Theme)"
+lnf="$(kread kdeglobals KDE LookAndFeelPackage)"
+widget_style="$(kread kdeglobals KDE widgetStyle)"
+font="$(kread kdeglobals General font)"
+cursor="$(kread kcminputrc Mouse cursorTheme)"
+cursor_size="$(kread kcminputrc Mouse cursorSize)"
+
+# Tampon : redéploie si le fond, le thème ou ce script changent. kdeglobals
+# n'est pas hashé en entier (Plasma y écrit en permanence, ce qui
+# redemanderait sudo à chaque apply) : seulement ses clés de thème.
+STAMP_WANT="$(
+    {
+        echo {{ include .chezmoi.sourceFile | sha256sum | quote }}
+        printf '%s\n' "$color_scheme" "$icons" "$lnf" "$widget_style" "$font" "$cursor" "$cursor_size"
+        find "$WALL_SRC" -type f -print0 | sort -z | xargs -0 sha256sum
+        for f in kxkbrc plasma-localerc fontconfig/fonts.conf; do
+            [ -f "$CFG/$f" ] && sha256sum "$CFG/$f"
+        done
+        true
+    } | sha256sum | cut -d' ' -f1
+)"
+{{ template "sudo-stamp.sh" "plasmalogin" }}
+
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+for f in "${SYNC_FILES[@]}"; do
+    if [ -f "$CFG/$f" ]; then
+        mkdir -p "$(dirname "$tmp/$f")"
+        cp "$CFG/$f" "$tmp/$f"
+    fi
+done
+touch "$tmp/kdeglobals" "$tmp/kcminputrc"
+
+kw() { # kw FICHIER GROUPE CLÉ VALEUR (ignore les valeurs vides)
+    [ -n "$4" ] || return 0
+    kwriteconfig6 --file "$tmp/$1" --group "$2" --key "$3" "$4"
+}
+kw kdeglobals General ColorScheme "$color_scheme"
+kw kdeglobals Icons Theme "$icons"
+kw kdeglobals KDE LookAndFeelPackage "$lnf"
+kw kdeglobals KDE widgetStyle "$widget_style"
+kw kdeglobals General font "$font"
+kw kcminputrc Mouse cursorTheme "$cursor"
+kw kcminputrc Mouse cursorSize "$cursor_size"
+
+# 1. Fond d'écran (copie du paquet entier : le greeter n'a pas accès à ~)
+sudo install -d -o plasmalogin -g plasmalogin -m 0755 "$GREETER_HOME/wallpapers"
+sudo rm -rf "$WALL_DEST"
+sudo cp -r "$WALL_SRC" "$WALL_DEST"
+sudo chown -R plasmalogin:plasmalogin "$WALL_DEST"
+sudo chmod -R u=rwX,go=rX "$WALL_DEST"
+
+# 2. Configuration du greeter (édition par clé, le reste du fichier est conservé)
+for key in Image PreviewImage; do
+    sudo kwriteconfig6 --file /etc/plasmalogin.conf \
+        --group Greeter --group Wallpaper --group org.kde.image --group General \
+        --key "$key" "file://$WALL_DEST"
+done
+
+# 3. Paramètres Plasma du greeter
+sudo install -d -o plasmalogin -g plasmalogin -m 0755 "$GREETER_HOME/.config" "$GREETER_HOME/.config/fontconfig"
+for f in "${SYNC_FILES[@]}"; do
+    [ -f "$tmp/$f" ] || continue
+    sudo install -D -o plasmalogin -g plasmalogin -m 0644 "$tmp/$f" "$GREETER_HOME/.config/$f"
+done
+
+stamp_done
+echo "[plasmalogin] écran de connexion aligné : fond $WALL_NAME, couleurs $color_scheme, icônes $icons"
+{{ end -}}

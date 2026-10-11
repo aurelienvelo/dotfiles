@@ -1,0 +1,122 @@
+{{ if and (eq .chezmoi.os "linux") (dig "gui" false .) -}}
+{{- $kde := .kde -}}
+#!/bin/bash
+set -euo pipefail
+
+# Apparence KDE Plasma : thème sombre, icônes, curseur, splash, verrouillage,
+# fond d'écran (données : .chezmoidata/kde.yaml).
+# Script run_ « convergent » : chaque apply relit les clés et ne réécrit que
+# celles qui diffèrent. Un réglage changé à la main dans Configuration du
+# système est donc rétabli au prochain apply, et un apply sans écart ne
+# touche à rien. Pas de sudo ici (voir 46-plasmalogin pour l'écran de connexion).
+
+if ! command -v kwriteconfig6 >/dev/null 2>&1; then
+    echo "[kde] kwriteconfig6 absent (Plasma pas encore installé ?), ignoré"
+    exit 0
+fi
+
+# Les outils plasma-apply-* sont des applications Qt : hors session graphique
+# (apply via SSH ou TTY), plateforme offscreen.
+if [ -z "${WAYLAND_DISPLAY:-}" ] && [ -z "${DISPLAY:-}" ]; then
+    export QT_QPA_PLATFORM=offscreen
+fi
+
+# kread FICHIER GROUPE... CLÉ  (lit en cascade : ~/.config, kdedefaults, /etc/xdg)
+kread() {
+    local file=$1 args=()
+    shift
+    while [ $# -gt 1 ]; do args+=(--group "$1"); shift; done
+    kreadconfig6 --file "$file" "${args[@]}" --key "$1"
+}
+
+# kset FICHIER GROUPE... CLÉ VALEUR  (n'écrit que si la valeur diffère)
+kset() {
+    local file=$1 args=()
+    shift
+    while [ $# -gt 2 ]; do args+=(--group "$1"); shift; done
+    if [ "$(kreadconfig6 --file "$file" "${args[@]}" --key "$1")" != "$2" ]; then
+        kwriteconfig6 --notify --file "$file" "${args[@]}" --key "$1" "$2"
+        echo "[kde] $file : $1=$2"
+    fi
+}
+
+LNF={{ $kde.lookandfeel | quote }}
+COLORS={{ $kde.colorscheme | quote }}
+ICONS={{ $kde.icons | quote }}
+CURSOR={{ $kde.cursor | quote }}
+CURSOR_SIZE={{ $kde.cursor_size | quote }}
+WALL_DIR="$HOME/.local/share/wallpapers/"{{ $kde.wallpaper | quote }}
+WALL_URL="file://$WALL_DIR"
+
+# 1. Thème global. plasma-apply-lookandfeel désactive aussi la bascule
+#    automatique clair/sombre (knighttime) ; on la fige explicitement.
+if [ "$(kread kdeglobals KDE LookAndFeelPackage)" != "$LNF" ]; then
+    echo "[kde] thème global → $LNF"
+    plasma-apply-lookandfeel --apply "$LNF"
+fi
+kset kdeglobals KDE AutomaticLookAndFeel false
+kset kdeglobals KDE DefaultDarkLookAndFeel "$LNF"
+
+# 2. Couleurs : plasma-apply-colorscheme recopie la palette complète dans
+#    kdeglobals (groupes [Colors:*]) ; écrire la seule clé ColorScheme ne suffit pas.
+if [ "$(kread kdeglobals General ColorScheme)" != "$COLORS" ]; then
+    echo "[kde] couleurs → $COLORS"
+    plasma-apply-colorscheme "$COLORS"
+fi
+
+# 3. Icônes (plasma-changeicons prévient les applications ouvertes)
+if [ "$(kread kdeglobals Icons Theme)" != "$ICONS" ]; then
+    echo "[kde] icônes → $ICONS"
+    /usr/lib/plasma-changeicons "$ICONS" 2>/dev/null || kset kdeglobals Icons Theme "$ICONS"
+fi
+
+# 4. Curseur
+if [ "$(kread kcminputrc Mouse cursorTheme)" != "$CURSOR" ] \
+    || [ "$(kread kcminputrc Mouse cursorSize)" != "$CURSOR_SIZE" ]; then
+    echo "[kde] curseur → $CURSOR ($CURSOR_SIZE px)"
+    plasma-apply-cursortheme --size "$CURSOR_SIZE" "$CURSOR" 2>/dev/null || {
+        kset kcminputrc Mouse cursorTheme "$CURSOR"
+        kset kcminputrc Mouse cursorSize "$CURSOR_SIZE"
+    }
+fi
+
+# 5. Splash
+kset ksplashrc KSplash Engine KSplashQML
+kset ksplashrc KSplash Theme {{ $kde.splash | quote }}
+
+# 6. Écran de verrouillage : même fond que le bureau ; le style (sombre)
+#    suit le thème global.
+kset kscreenlockerrc Daemon Autolock true
+kset kscreenlockerrc Daemon LockOnResume true
+kset kscreenlockerrc Daemon Timeout {{ $kde.lock_timeout | quote }}
+kset kscreenlockerrc Greeter WallpaperPlugin org.kde.image
+kset kscreenlockerrc Greeter Wallpaper org.kde.image General Image "$WALL_URL"
+kset kscreenlockerrc Greeter Wallpaper org.kde.image General PreviewImage "$WALL_URL"
+
+# 7. Clés diverses (kde.settings)
+{{ range $file, $entries := $kde.settings -}}
+{{ range $entries -}}
+kset {{ $file | quote }}{{ range . }} {{ . | quote }}{{ end }}
+{{ end -}}
+{{ end -}}
+
+# 8. Fond d'écran du bureau : stocké par plasmashell dans
+#    plasma-org.kde.plasma.desktop-appletsrc (un groupe par écran), d'où
+#    l'outil officiel, qui exige une session Plasma active. Un tampon évite de
+#    le réappliquer à chaque apply ; sans session, on réessaiera au prochain.
+if [ -d "$WALL_DIR" ]; then
+    stamp="${XDG_STATE_HOME:-$HOME/.local/state}/chezmoi/stamps/kde-wallpaper"
+    want="$(find "$WALL_DIR" -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)"
+    if [ "$(cat "$stamp" 2>/dev/null)" != "$want" ]; then
+        if busctl --user --no-pager status org.kde.plasmashell >/dev/null 2>&1; then
+            plasma-apply-wallpaperimage "$WALL_DIR"
+            mkdir -p "${stamp%/*}"
+            printf '%s\n' "$want" >"$stamp"
+        else
+            echo "[kde] fond du bureau : pas de session Plasma, appliqué au prochain apply en session"
+        fi
+    fi
+else
+    echo "[kde] fond d'écran introuvable : $WALL_DIR"
+fi
+{{ end -}}
