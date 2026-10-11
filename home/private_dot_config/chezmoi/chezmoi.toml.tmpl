@@ -11,6 +11,7 @@
     {{- if eq .chezmoi.hostname "vm-dev" }}
     device_type = "vm"
     has_nvidia = false
+    has_intel_gpu = false
     has_battery = false
     gui = true
     vpn = false
@@ -22,6 +23,7 @@
     {{- else if eq .chezmoi.hostname "laptop" }}
     device_type = "laptop"
     has_nvidia = false
+    has_intel_gpu = true
     has_battery = true
     gui = true
     vpn = true
@@ -33,6 +35,7 @@
     {{- else if eq .chezmoi.hostname "desktop" }}
     device_type = "desktop"
     has_nvidia = true
+    has_intel_gpu = false
     has_battery = false
     gui = true
     vpn = true
@@ -44,6 +47,7 @@
     {{- else if eq .chezmoi.hostname "matrix.home.lan" }}
     device_type = "server"
     has_nvidia = false
+    has_intel_gpu = false
     has_battery = false
     gui = false
     vpn = false
@@ -55,6 +59,7 @@
     {{- else }}
     device_type = "unknown"
     has_nvidia = false
+    has_intel_gpu = false
     has_battery = false
     gui = false
     vpn = false

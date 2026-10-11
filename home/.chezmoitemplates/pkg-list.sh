@@ -8,6 +8,7 @@
 {{- $device_type := dig "device_type" "unknown" . -}}
 {{- $has_nvidia := dig "has_nvidia" false . -}}
 {{- $has_battery := dig "has_battery" false . -}}
+{{- $has_intel_gpu := dig "has_intel_gpu" false . -}}
 
 desired_packages() {
   local pkgs=()
@@ -48,6 +49,15 @@ desired_packages() {
     'opencl-nvidia'
   )
   pkgs+=("${nv_pkgs[@]}")
+  {{ end }}
+
+  # GPU INTEL (condition has_intel_gpu) : VA-API (vidéo) + OpenCL (hashcat)
+  {{ if $has_intel_gpu }}
+  local intel_pkgs=(
+    'intel-media-driver'
+    'intel-compute-runtime'
+  )
+  pkgs+=("${intel_pkgs[@]}")
   {{ end }}
 
   # LAPTOP (condition has_battery)

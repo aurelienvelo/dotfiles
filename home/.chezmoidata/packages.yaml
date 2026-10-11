@@ -155,6 +155,7 @@ packages:
           - 'proxify'
           - 'katana-pd'
           - 'gowitness'
+          - 'caido-desktop'
         aur: []
       ad_windows:
         blackarch:
