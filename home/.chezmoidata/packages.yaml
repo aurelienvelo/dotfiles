@@ -55,6 +55,11 @@ packages:
         - 'opencode'
         - 'python-pipx'
         - 'reflector'
+        # DevOps
+        - 'github-cli'
+        - 'pre-commit'
+        - 'opentofu'
+        - 'ansible'
       aur:
         - 'claude-code'
     gui:
