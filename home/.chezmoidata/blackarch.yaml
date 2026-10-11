@@ -1,0 +1,7 @@
+# strap.sh épinglé (vérifié le 2026-10-11 contre le SHA1 publié sur
+# https://blackarch.org/downloads.html : d338a4bb95d9e09f97508da68ac9e17d963b85f6).
+# Si BlackArch publie une nouvelle version, 05-setup-blackarch refuse de
+# l'exécuter : vérifier le nouveau SHA1 sur la page, puis remplacer
+# strap_sha256 par `sha256sum strap.sh`.
+blackarch:
+  strap_sha256: 'dc0737cc75d64d03e9ec2212f989f17cdcf0162c2db5980e256093e293abfb8b'

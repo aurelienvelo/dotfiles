@@ -29,11 +29,11 @@ chezmoi apply   # dans un terminal (sudo/TTY requis)
 
 ### Manual Steps (Required)
 
-1. **Install BlackArch repository** (requires sudo + TTY) — automatic when
-   `chezmoi apply` runs interactively, otherwise:
-   ```bash
-   curl -fsSL https://blackarch.org/strap.sh | sudo bash
-   ```
+1. **Install BlackArch repository** (requires sudo + TTY): automatic when
+   `chezmoi apply` runs interactively. `05-setup-blackarch` only runs
+   strap.sh if its sha256 matches the pin in `.chezmoidata/blackarch.yaml`.
+   On mismatch, compare the SHA1 with the one published on
+   https://blackarch.org/downloads.html, then update the pin.
 
 2. **Re-apply to install packages**:
    ```bash

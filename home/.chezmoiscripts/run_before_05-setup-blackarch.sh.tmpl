@@ -14,15 +14,26 @@ fi
 
 if [ ! -t 0 ]; then
     echo "[blackarch] Mode non interactif : installation reportée au prochain 'chezmoi apply' dans un terminal."
-    echo "[blackarch] Ou manuellement : curl -fsSL https://blackarch.org/strap.sh | sudo bash"
+    echo "[blackarch] Ou manuellement : voir https://blackarch.org/downloads.html (vérifier le SHA1 avant d'exécuter strap.sh)"
     exit 0
 fi
 
 echo "[blackarch] Installation du dépôt BlackArch..."
 tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT
-# Téléchargé puis exécuté (pas de curl | bash) : un transfert interrompu ne
-# lance pas un script tronqué.
+# Téléchargé, vérifié, puis exécuté (jamais curl | bash) : ni un transfert
+# tronqué ni un strap.sh modifié ne sont lancés en root. Empreinte épinglée
+# dans .chezmoidata/blackarch.yaml.
 curl -fsSL https://blackarch.org/strap.sh -o "$tmp"
+want={{ .blackarch.strap_sha256 | quote }}
+got="$(sha256sum "$tmp" | cut -d' ' -f1)"
+if [ "$got" != "$want" ]; then
+    echo "[blackarch] strap.sh ne correspond pas à l'empreinte épinglée : exécution refusée." >&2
+    echo "[blackarch]   attendu : $want" >&2
+    echo "[blackarch]   obtenu  : $got (SHA1 : $(sha1sum "$tmp" | cut -d' ' -f1))" >&2
+    echo "[blackarch] Comparer ce SHA1 à celui publié sur https://blackarch.org/downloads.html," >&2
+    echo "[blackarch] puis mettre à jour strap_sha256 dans .chezmoidata/blackarch.yaml." >&2
+    exit 1
+fi
 sudo bash "$tmp"
 {{ end -}}

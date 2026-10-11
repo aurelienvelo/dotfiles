@@ -43,11 +43,13 @@ chezmoi execute-template '{{ template "pkg-list.sh" . }}' | bash -c 'source /dev
 
 **Externals.** `home/.chezmoiexternal.toml` clones TPM into `~/.config/tmux/plugins/tpm` (`git-repo`, refreshed every 168h). `tmux-bootstrap` only installs the plugins.
 
+**BlackArch.** `05-setup-blackarch` only runs `strap.sh` if its sha256 matches `blackarch.strap_sha256` in `home/.chezmoidata/blackarch.yaml`. When BlackArch ships a new strap.sh, compare its SHA1 with the one published on https://blackarch.org/downloads.html before updating the pin.
+
 **Other data.** `home/.chezmoidata.yaml` holds the SSH host list (rendered into `private_dot_ssh/config.tmpl`) and the NFS server IP. `ssh_pubkeys_registry/` collects per-host pubkeys for `50-deploy-ssh-keys` and is not deployed.
 
 ## Validation before pushing
 
-The dev machine (`vm-dev`) has most flags set to false, so branches gated by `vpn`, `wifi`, `container`, `virtualization`, `has_nvidia` and `has_battery` never render there. A missing `vpn.pacman` key once shipped this way and broke apply on other devices. After you edit `packages.yaml`, `pkg-list.sh` or any script that uses them, run `tools/check.sh`: it automates steps 1–3 below. Steps 4–5 are still manual.
+The dev machine (`vm-dev`) has most flags set to false, so branches gated by `vpn`, `wifi`, `container`, `virtualization`, `has_nvidia` and `has_battery` never render there. A missing `vpn.pacman` key once shipped this way and broke apply on other devices. After you edit `packages.yaml`, `pkg-list.sh` or any script that uses them, run `tools/check.sh`: it automates steps 1–3 below. Steps 4–5 are still manual. Pitfall for manual renders: `chezmoi --config <missing file>` does **not** fail. It runs with no data, so every flag is false and gated scripts silently vanish from the output. `/tmp/allflags.toml` does not survive a reboot, so recreate it each time (`tools/check.sh` generates its own config).
 
 1. Copy the deployed `~/.config/chezmoi/chezmoi.toml` to `/tmp/allflags.toml` and set every flag to true. Append any flag the deployed config doesn't have yet (a flag added since the last apply), then render:
    `chezmoi --config /tmp/allflags.toml execute-template '{{ template "pkg-list.sh" . }}' | bash -c 'source /dev/stdin && desired_packages' | wc -l`
