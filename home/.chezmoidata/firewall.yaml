@@ -13,3 +13,7 @@ firewall:
     - name: 'KDE Connect'
       allow: 'KDEConnect'
       when: 'gui'
+    # krdp (bureau à distance Plasma) : pas de profil ufw, port RDP par défaut.
+    - name: 'KRDP'
+      allow: '3389/tcp'
+      when: 'gui'
